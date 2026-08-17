@@ -1,0 +1,11 @@
+backend/
+prototype/
+design/
+docs/
+memory/
+*.db
+*.db-*
+.env
+credentials.json
+perenual key.txt
+node_modules/
