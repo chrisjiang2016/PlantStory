@@ -1,0 +1,381 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>05 - 养护提醒 | 植の物语</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', sans-serif;
+            background: linear-gradient(135deg, #e8f5e9 0%, #fff9e6 100%);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 20px;
+        }
+        .phone-frame {
+            width: 375px;
+            height: 812px;
+            background: #fafafa;
+            border-radius: 40px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.15);
+            overflow: hidden;
+            position: relative;
+        }
+        .nav-back {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            z-index: 100;
+            background: rgba(255,255,255,0.2);
+            color: white;
+            padding: 8px 15px;
+            border-radius: 20px;
+            text-decoration: none;
+            font-size: 14px;
+            backdrop-filter: blur(10px);
+        }
+        .header {
+            background: linear-gradient(135deg, #66bb6a 0%, #81c784 100%);
+            padding: 50px 20px 20px;
+            color: white;
+            text-align: center;
+        }
+        .header-icon { font-size: 48px; margin-bottom: 10px; }
+        .header h1 { font-size: 20px; font-weight: 400; margin-bottom: 5px; }
+        .header p  { font-size: 13px; opacity: 0.9; }
+        .content {
+            padding: 20px;
+            overflow-y: auto;
+            height: calc(100% - 260px);
+        }
+        .card {
+            background: white;
+            border-radius: 15px;
+            padding: 20px;
+            margin-bottom: 15px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+        }
+        .card-title {
+            font-size: 16px;
+            color: #2e7d32;
+            font-weight: 500;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .task-item {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            padding: 15px;
+            background: #f9f9f9;
+            border-radius: 12px;
+            margin-bottom: 10px;
+            transition: all 0.3s;
+        }
+        .task-item.done {
+            opacity: 0.5;
+            background: #f0f0f0;
+        }
+        .task-icon {
+            width: 50px;
+            height: 50px;
+            background: linear-gradient(135deg, #e8f5e9 0%, #fff9e6 100%);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            flex-shrink: 0;
+        }
+        .task-info { flex: 1; }
+        .task-name {
+            font-size: 14px;
+            color: #2e7d32;
+            font-weight: 500;
+            margin-bottom: 3px;
+        }
+        .task-meta { font-size: 12px; color: #9e9e9e; }
+        .task-btn {
+            padding: 8px 16px;
+            background: #2e7d32;
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 12px;
+            cursor: pointer;
+            white-space: nowrap;
+            transition: background 0.3s;
+        }
+        .task-btn:hover { background: #1b5e20; }
+        .task-btn:disabled {
+            background: #9e9e9e;
+            cursor: default;
+        }
+        .empty-state {
+            text-align: center;
+            padding: 40px 20px;
+            color: #9e9e9e;
+        }
+        .empty-state .empty-icon { font-size: 64px; margin-bottom: 15px; }
+        .empty-state p { font-size: 14px; line-height: 1.6; }
+        .empty-state a {
+            display: inline-block;
+            margin-top: 15px;
+            padding: 10px 20px;
+            background: #2e7d32;
+            color: white;
+            border-radius: 12px;
+            text-decoration: none;
+            font-size: 14px;
+        }
+        /* 底部导航 */
+        .bottom-nav {
+            position: absolute;
+            bottom: 0;
+            width: 100%;
+            background: white;
+            padding: 12px 20px 25px;
+            display: flex;
+            justify-content: space-around;
+            border-top: 1px solid #f0f0f0;
+        }
+        .nav-item {
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s;
+            text-decoration: none;
+            color: inherit;
+        }
+        .nav-item.active .nav-icon,
+        .nav-item.active .nav-label { color: #2e7d32; }
+        .nav-icon {
+            font-size: 24px;
+            display: block;
+            margin-bottom: 4px;
+            color: #9e9e9e;
+        }
+        .nav-label {
+            font-size: 11px;
+            color: #9e9e9e;
+        }
+        /* 提示条 */
+        .tip-banner {
+            background: linear-gradient(135deg, #e8f5e9 0%, #c8e6c9 100%);
+            border-radius: 12px;
+            padding: 14px 16px;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 13px;
+            color: #2e7d32;
+        }
+        .tip-banner .tip-icon { font-size: 20px; flex-shrink: 0; }
+        .completed-count {
+            font-size: 12px;
+            color: #9e9e9e;
+            text-align: center;
+            padding: 10px 0 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="phone-frame">
+        <a href="02-首页.html" class="nav-back">← 返回</a>
+
+        <div class="header">
+            <div class="header-icon">🔔</div>
+            <h1>养护提醒</h1>
+            <p id="headerSubtitle">今日任务清单</p>
+        </div>
+
+        <div class="content" id="taskContent">
+            <!-- JS 动态渲染 -->
+        </div>
+
+        <div class="bottom-nav">
+            <a href="02-首页.html" class="nav-item active">
+                <span class="nav-icon">🏠</span>
+                <span class="nav-label">首页</span>
+            </a>
+            <a href="03-拍照识别.html" class="nav-item">
+                <span class="nav-icon">📷</span>
+                <span class="nav-label">识别</span>
+            </a>
+            <a href="06-病虫害诊断.html" class="nav-item">
+                <span class="nav-icon">🩺</span>
+                <span class="nav-label">诊断</span>
+            </a>
+            <a href="07-植物百科.html" class="nav-item">
+                <span class="nav-icon">📚</span>
+                <span class="nav-label">百科</span>
+            </a>
+            <a href="08-个人中心.html" class="nav-item">
+                <span class="nav-icon">👤</span>
+                <span class="nav-label">我的</span>
+            </a>
+        </div>
+    </div>
+
+    <script src="/app.js"></script>
+    <script>
+        const CARE_ICONS = {
+            '浇水': '💧',
+            '施肥': '🧪',
+            '修剪': '✂️',
+            '换盆': '🪴',
+            '擦拭叶片': '🧹',
+            '检查虫害': '🔍',
+            '晒太阳': '☀️',
+            'default': '🌱'
+        };
+
+        // 基于 myPlants 生成今日/近期养护任务（MVP 模拟逻辑）
+        function generateTasks() {
+            const myPlants = ZhiWuApp.getMyPlants();
+            const today = new Date();
+            const todayStr = `${today.getMonth()+1}月${today.getDate()}日`;
+            const tasks = { today: [], upcoming: [] };
+
+            if (myPlants.length === 0) return tasks;
+
+            myPlants.forEach(plant => {
+                const name = plant.commonName || plant.plantName || '植物';
+                const location = plant.location || '待设置位置';
+                const emoji = plant.emoji || '🌱';
+
+                // MVP: 根据植物名 hash 生成简单养护任务
+                const hash = name.split('').reduce((a, c) => a + c.charCodeAt(0), 0);
+                const careTypes = ['浇水', '施肥', '修剪', '擦拭叶片', '检查虫害'];
+                const mainCare = careTypes[hash % careTypes.length];
+                const secondCare = careTypes[(hash + 2) % careTypes.length];
+
+                tasks.today.push({
+                    id: `${name}-today`,
+                    plantName: name,
+                    emoji,
+                    location,
+                    careType: mainCare,
+                    time: '今天 09:00',
+                    done: false
+                });
+
+                // 第二项任务设为明天
+                const tomorrow = new Date(today);
+                tomorrow.setDate(tomorrow.getDate() + 1);
+                tasks.upcoming.push({
+                    id: `${name}-tomorrow`,
+                    plantName: name,
+                    emoji,
+                    location,
+                    careType: secondCare,
+                    time: `${tomorrow.getMonth()+1}月${tomorrow.getDate()}日`,
+                    done: false
+                });
+
+                // 第三项设为 3 天后
+                const later = new Date(today);
+                later.setDate(later.getDate() + 3);
+                tasks.upcoming.push({
+                    id: `${name}-later`,
+                    plantName: name,
+                    emoji,
+                    location,
+                    careType: '晒太阳',
+                    time: `${later.getMonth()+1}月${later.getDate()}日`,
+                    done: false
+                });
+            });
+
+            return tasks;
+        }
+
+        function renderTasks() {
+            const container = document.getElementById('taskContent');
+            const tasks = generateTasks();
+
+            if (tasks.today.length === 0 && tasks.upcoming.length === 0) {
+                container.innerHTML = `
+                    <div class="empty-state">
+                        <div class="empty-icon">🌱</div>
+                        <p>还没有养护任务<br>先拍照识别一盆植物，开始你的养护计划</p>
+                        <a href="03-拍照识别.html">📷 去识别植物</a>
+                    </div>
+                `;
+                document.getElementById('headerSubtitle').textContent = '暂无养护任务';
+                return;
+            }
+
+            let html = '';
+
+            // 今日任务
+            if (tasks.today.length > 0) {
+                html += `
+                    <div class="tip-banner">
+                        <span class="tip-icon">💡</span>
+                        <span>完成今日所有任务，保持植物健康状态</span>
+                    </div>
+                    <div class="card">
+                        <div class="card-title">📋 今日待办（${tasks.today.length}）</div>
+                        ${tasks.today.map(task => `
+                            <div class="task-item" id="task-${task.id}">
+                                <div class="task-icon">${task.emoji}</div>
+                                <div class="task-info">
+                                    <div class="task-name">${task.plantName} - ${task.careType}</div>
+                                    <div class="task-meta">${task.location} · ${task.time}</div>
+                                </div>
+                                <button class="task-btn" onclick="completeTask('${task.id}', this)">✓ 完成</button>
+                            </div>
+                        `).join('')}
+                    </div>
+                `;
+            }
+
+            // 未来任务
+            if (tasks.upcoming.length > 0) {
+                html += `
+                    <div class="card">
+                        <div class="card-title">📅 未来任务</div>
+                        ${tasks.upcoming.map(task => `
+                            <div class="task-item">
+                                <div class="task-icon">${CARE_ICONS[task.careType] || CARE_ICONS.default}</div>
+                                <div class="task-info">
+                                    <div class="task-name">${task.plantName} - ${task.careType}</div>
+                                    <div class="task-meta">${task.location} · ${task.time}</div>
+                                </div>
+                            </div>
+                        `).join('')}
+                    </div>
+                `;
+            }
+
+            container.innerHTML = html;
+            document.getElementById('headerSubtitle').textContent =
+                `今日 ${tasks.today.length} 项待办`;
+        }
+
+        function completeTask(taskId, btnEl) {
+            const taskItem = document.getElementById(`task-${taskId}`);
+            if (!taskItem) return;
+            btnEl.disabled = true;
+            btnEl.textContent = '✓ 已完成';
+            taskItem.classList.add('done');
+
+            // 检查是否全部完成
+            const allBtns = document.querySelectorAll('.task-btn');
+            const allDone = [...allBtns].every(b => b.disabled);
+            if (allDone) {
+                document.getElementById('headerSubtitle').textContent =
+                    '🎉 今日任务全部完成！';
+            }
+        }
+
+        renderTasks();
+    </script>
+</body>
+</html>

@@ -1,0 +1,395 @@
+# ============================================================
+# 植の物语 — OpenAPI 3.0 规范文档
+# 模块 1/10：Auth（认证模块）
+# 创建时间：2026-07-02
+# ============================================================
+
+openapi: "3.0.3"
+
+# ────────────────────────────────────────────────────────────
+# 文档元信息
+# ────────────────────────────────────────────────────────────
+info:
+  title: 植の物语 API
+  description: |
+    植の物语 — 个人植物管理与识花 App 后端接口规范。
+
+    **认证方式**：所有需要登录的接口均需在 Header 中携带
+    ```
+    Authorization: Bearer <access_token>
+    ```
+    access_token 有效期 15 分钟，过期后使用 refresh_token 换取新 token。
+    refresh_token 有效期 7 天，一次性使用（Rotate）。
+
+    **用户名规则**：`[a-zA-Z0-9]`，3～32 位，全局唯一。
+    **密码规则**：`[a-zA-Z0-9]`，6～32 位，bcrypt 哈希存储。
+  version: "1.0.0"
+  contact:
+    name: ChrisJ
+  license:
+    name: MIT
+
+servers:
+  - url: http://localhost:3000/api/v1
+    description: 本地开发环境
+  - url: https://api.zhinawuyu.app/api/v1
+    description: 生产环境
+
+# ────────────────────────────────────────────────────────────
+# 安全定义（全局，所有模块共用）
+# ────────────────────────────────────────────────────────────
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: 登录后获取的 access_token，有效期 15 分钟
+
+  # ── 公共响应模型（所有模块复用） ────────────────────────
+  responses:
+    Unauthorized:
+      description: 未登录或 token 无效
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/Error"
+          example:
+            code: 401
+            message: "未登录或 token 已失效，请重新登录"
+    Forbidden:
+      description: 无权限访问
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/Error"
+          example:
+            code: 403
+            message: "无权限访问该资源"
+    NotFound:
+      description: 资源不存在
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/Error"
+          example:
+            code: 404
+            message: "请求的资源不存在"
+    TooManyRequests:
+      description: 请求过于频繁
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/Error"
+          example:
+            code: 429
+            message: "请求过于频繁，请稍后再试"
+
+  # ── 认证模块 schemas ──────────────────────────────────
+  schemas:
+    # --- 通用 ---
+    Error:
+      type: object
+      required: [code, message]
+      properties:
+        code:
+          type: integer
+          description: 业务状态码（与 HTTP 状态码一致）
+        message:
+          type: string
+          description: 错误描述
+
+    # --- Auth 专用 ---
+    RegisterRequest:
+      type: object
+      required: [username, password]
+      properties:
+        username:
+          type: string
+          minLength: 3
+          maxLength: 32
+          pattern: "^[a-zA-Z0-9]+$"
+          description: 用户名，英文+数字，唯一
+          example: "chrisj0702"
+        password:
+          type: string
+          minLength: 6
+          maxLength: 32
+          pattern: "^[a-zA-Z0-9]+$"
+          description: 密码，英文+数字，6-32位
+          example: "pass123456"
+
+    LoginRequest:
+      type: object
+      required: [username, password]
+      properties:
+        username:
+          type: string
+          description: 用户名
+          example: "chrisj0702"
+        password:
+          type: string
+          description: 密码
+          example: "pass123456"
+
+    TokenPair:
+      type: object
+      description: 登录/刷新 token 成功后返回
+      properties:
+        accessToken:
+          type: string
+          description: 访问令牌，有效期 15 分钟
+        refreshToken:
+          type: string
+          description: 刷新令牌，有效期 7 天，一次性使用
+        expiresIn:
+          type: integer
+          description: access_token 有效期（秒）
+          example: 900
+
+    RefreshTokenRequest:
+      type: object
+      required: [refreshToken]
+      properties:
+        refreshToken:
+          type: string
+          description: 登录时返回的 refresh_token
+
+    UserProfile:
+      type: object
+      description: 当前登录用户信息
+      properties:
+        id:
+          type: string
+          format: uuid
+          description: 用户 ID
+        username:
+          type: string
+          description: 用户名
+        nickname:
+          type: string
+          description: 昵称（可选，用户可修改）
+        avatar:
+          type: string
+          format: uri
+          description: 头像 URL（可选）
+        createdAt:
+          type: string
+          format: date-time
+          description: 注册时间
+
+    UpdateProfileRequest:
+      type: object
+      description: 更新个人信息（只传需要修改的字段）
+      properties:
+        nickname:
+          type: string
+          minLength: 1
+          maxLength: 32
+          description: 新昵称
+        avatar:
+          type: string
+          format: uri
+          description: 新头像 URL
+        password:
+          type: string
+          minLength: 6
+          maxLength: 32
+          pattern: "^[a-zA-Z0-9]+$"
+          description: 新密码（同时需要 oldPassword）
+
+    ChangePasswordRequest:
+      type: object
+      required: [oldPassword, newPassword]
+      properties:
+        oldPassword:
+          type: string
+          description: 当前密码
+        newPassword:
+          type: string
+          minLength: 6
+          maxLength: 32
+          pattern: "^[a-zA-Z0-9]+$"
+          description: 新密码
+
+    # --- 通用分页 ---
+    PaginationMeta:
+      type: object
+      properties:
+        total:
+          type: integer
+          description: 总记录数
+        page:
+          type: integer
+          description: 当前页码
+        pageSize:
+          type: integer
+          description: 每页条数
+
+# ────────────────────────────────────────────────────────────
+# 接口定义
+# ────────────────────────────────────────────────────────────
+paths:
+
+  # ── POST /auth/register ────────────────────────────────
+  /auth/register:
+    post:
+      tags: [Auth]
+      summary: 用户注册
+      operationId: registerUser
+      description: |
+        使用用户名+密码注册，注册成功后自动登录并返回 token 对。
+        用户名全局唯一，重复注册返回 409。
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/RegisterRequest"
+      responses:
+        "201":
+          description: 注册成功，自动登录
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  user:
+                    $ref: "#/components/schemas/UserProfile"
+                  tokens:
+                    $ref: "#/components/schemas/TokenPair"
+        "409":
+          description: 用户名已存在
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+              example:
+                code: 409
+                message: "用户名已被占用"
+        "422":
+          description: 参数校验失败
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+
+  # ── POST /auth/login ──────────────────────────────────
+  /auth/login:
+    post:
+      tags: [Auth]
+      summary: 用户登录
+      operationId: loginUser
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/LoginRequest"
+      responses:
+        "200":
+          description: 登录成功
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  user:
+                    $ref: "#/components/schemas/UserProfile"
+                  tokens:
+                    $ref: "#/components/schemas/TokenPair"
+        "401":
+          description: 用户名或密码错误
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+              example:
+                code: 401
+                message: "用户名或密码错误"
+
+  # ── POST /auth/refresh ─────────────────────────────────
+  /auth/refresh:
+    post:
+      tags: [Auth]
+      summary: 刷新 access_token
+      operationId: refreshToken
+      description: |
+        使用 refresh_token 换取新的 token 对。
+        refresh_token 为一次性使用，旧 token 刷新后立即失效。
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/RefreshTokenRequest"
+      responses:
+        "200":
+          description: 刷新成功
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/TokenPair"
+        "401":
+          description: refresh_token 无效或已过期
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+              example:
+                code: 401
+                message: "refresh_token 已失效，请重新登录"
+
+  # ── GET /auth/profile ─────────────────────────────────
+  /auth/profile:
+    get:
+      tags: [Auth]
+      summary: 获取当前用户信息
+      operationId: getProfile
+      security:
+        - bearerAuth: []
+      responses:
+        "200":
+          description: 获取成功
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/UserProfile"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+
+  # ── PATCH /auth/profile ───────────────────────────────
+  /auth/profile:
+    patch:
+      tags: [Auth]
+      summary: 更新当前用户信息
+      operationId: updateProfile
+      security:
+        - bearerAuth: []
+      description: |
+        支持修改昵称、头像；修改密码需要同时传 oldPassword 和 newPassword。
+        只传需要修改的字段即可。
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UpdateProfileRequest"
+      responses:
+        "200":
+          description: 更新成功
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/UserProfile"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "422":
+          description: 旧密码错误或参数校验失败
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+              example:
+                code: 422
+                message: "旧密码错误"

@@ -1,0 +1,49 @@
+# ============================================
+# 植の物语 项目级 .gitignore
+# ============================================
+
+# 环境变量（敏感信息）
+.env
+.env.*
+!.env.example
+
+# 依赖
+node_modules/
+
+# 数据库文件
+*.db
+*.db-journal
+*.db-shm
+*.db-wal
+
+# 日志
+logs/
+*.log
+npm-debug.log*
+
+# 操作系统
+.DS_Store
+Thumbs.db
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# 临时文件
+tmp/
+temp/
+.cache/
+
+# 备份文件
+*.backup
+*.bak
+
+# Docker 卷数据（本地开发）
+postgres_data/
+
+# 构建产物
+dist/
+build/

@@ -1,0 +1,634 @@
+﻿<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>03 - 拍照识别 | 植の物语</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'PingFang SC', sans-serif;
+            background: linear-gradient(135deg, #e8f5e9 0%, #fff9e6 100%);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 20px;
+        }
+        .phone-frame {
+            width: 375px;
+            height: 812px;
+            background: #fafafa;
+            border-radius: 40px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.15);
+            overflow: hidden;
+            position: relative;
+        }
+        .header {
+            background: linear-gradient(135deg, #66bb6a 0%, #81c784 100%);
+            padding: 50px 20px 20px;
+            color: white;
+            text-align: center;
+        }
+        .header h1 {
+            font-size: 20px;
+            font-weight: 400;
+            margin-bottom: 5px;
+        }
+        .header p {
+            font-size: 13px;
+            opacity: 0.9;
+        }
+        .camera-area {
+            margin: 20px;
+            background: white;
+            border-radius: 20px;
+            padding: 30px;
+            text-align: center;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+        }
+        .camera-preview {
+            width: 100%;
+            height: 200px;
+            background: linear-gradient(135deg, #e8f5e9 0%, #fff9e6 100%);
+            border-radius: 15px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 20px;
+            border: 2px dashed #81c784;
+        }
+        .camera-icon {
+            font-size: 60px;
+            margin-bottom: 10px;
+        }
+        .camera-text {
+            font-size: 13px;
+            color: #757575;
+        }
+        .camera-buttons {
+            display: flex;
+            gap: 12px;
+        }
+        .btn {
+            flex: 1;
+            padding: 12px;
+            border: none;
+            border-radius: 12px;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        .btn-primary {
+            background: linear-gradient(135deg, #66bb6a 0%, #81c784 100%);
+            color: white;
+        }
+        .btn-secondary {
+            background: #f5f5f5;
+            color: #2e7d32;
+        }
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(102, 187, 106, 0.3);
+        }
+        
+        /* 识别结果区域 */
+        .result-area {
+            margin: 0 20px 100px;
+            background: white;
+            border-radius: 20px;
+            padding: 20px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+        }
+        .result-title {
+            font-size: 15px;
+            color: #2e7d32;
+            font-weight: 500;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        /* 识别结果卡片 - 可点击 */
+        .plant-result {
+            display: flex;
+            gap: 15px;
+            padding: 15px;
+            background: #f9f9f9;
+            border-radius: 15px;
+            margin-bottom: 15px;
+            cursor: pointer;
+            transition: all 0.3s;
+            text-decoration: none;
+            color: inherit;
+        }
+        .plant-result:hover {
+            background: #f1f8f4;
+            transform: translateX(3px);
+            box-shadow: 0 4px 15px rgba(102, 187, 106, 0.15);
+        }
+        .plant-thumb {
+            width: 70px;
+            height: 70px;
+            background: linear-gradient(135deg, #e8f5e9 0%, #fff9e6 100%);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 36px;
+            flex-shrink: 0;
+        }
+        .plant-detail {
+            flex: 1;
+        }
+        .plant-detail h3 {
+            font-size: 16px;
+            color: #2e7d32;
+            margin-bottom: 5px;
+            font-weight: 500;
+        }
+        .plant-detail p {
+            font-size: 12px;
+            color: #757575;
+            line-height: 1.5;
+            margin-bottom: 6px;
+        }
+        .confidence {
+            display: inline-block;
+            background: #e8f5e9;
+            color: #2e7d32;
+            padding: 3px 10px;
+            border-radius: 10px;
+            font-size: 11px;
+            font-weight: 500;
+        }
+        .view-hint {
+            font-size: 11px;
+            color: #9e9e9e;
+            margin-top: 5px;
+        }
+        
+        /* 操作按钮组 */
+        .action-buttons {
+            display: flex;
+            gap: 10px;
+        }
+        .action-btn {
+            flex: 1;
+            padding: 14px;
+            border: none;
+            border-radius: 12px;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+        }
+        .action-btn-primary {
+            background: linear-gradient(135deg, #66bb6a 0%, #81c784 100%);
+            color: white;
+        }
+        .action-btn-secondary {
+            background: #fff9e6;
+            color: #f57c00;
+            border: 1px solid #ffe0b2;
+        }
+        .action-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(102, 187, 106, 0.25);
+        }
+        
+        /* 弹窗遮罩 */
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+        }
+        .modal-overlay.active {
+            display: flex;
+        }
+        
+        /* 弹窗内容 */
+        .modal {
+            background: white;
+            width: 320px;
+            border-radius: 20px;
+            padding: 25px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.3);
+            animation: slideUp 0.3s ease-out;
+        }
+        @keyframes slideUp {
+            from {
+                transform: translateY(50px);
+                opacity: 0;
+            }
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+        .modal-title {
+            font-size: 18px;
+            color: #2e7d32;
+            font-weight: 500;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+        .form-group {
+            margin-bottom: 15px;
+        }
+        .form-label {
+            font-size: 13px;
+            color: #616161;
+            margin-bottom: 8px;
+            display: block;
+        }
+        .form-input, .form-select {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #e0e0e0;
+            border-radius: 10px;
+            font-size: 14px;
+            font-family: inherit;
+        }
+        .form-input:focus, .form-select:focus {
+            outline: none;
+            border-color: #66bb6a;
+        }
+        .modal-buttons {
+            display: flex;
+            gap: 10px;
+            margin-top: 20px;
+        }
+        .modal-btn {
+            flex: 1;
+            padding: 12px;
+            border: none;
+            border-radius: 10px;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+        }
+        .modal-btn-primary {
+            background: #2e7d32;
+            color: white;
+        }
+        .modal-btn-secondary {
+            background: #f5f5f5;
+            color: #616161;
+        }
+        
+        .nav-back {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            z-index: 100;
+            background: rgba(255,255,255,0.2);
+            color: white;
+            padding: 8px 15px;
+            border-radius: 20px;
+            text-decoration: none;
+            font-size: 14px;
+            backdrop-filter: blur(10px);
+        }
+        .bottom-nav {
+            position: absolute;
+            bottom: 0;
+            width: 100%;
+            background: white;
+            padding: 12px 20px 25px;
+            display: flex;
+            justify-content: space-around;
+            border-top: 1px solid #f0f0f0;
+        }
+        .nav-item {
+            text-align: center;
+            text-decoration: none;
+            color: #9e9e9e;
+        }
+        .nav-item.active {
+            color: #2e7d32;
+        }
+        .nav-icon {
+            font-size: 24px;
+            display: block;
+            margin-bottom: 4px;
+        }
+        .nav-label {
+            font-size: 11px;
+        }
+        
+        /* 成功提示 */
+        .toast {
+            position: fixed;
+            top: 80px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(46, 125, 50, 0.95);
+            color: white;
+            padding: 12px 20px;
+            border-radius: 20px;
+            font-size: 14px;
+            z-index: 2000;
+            display: none;
+            animation: fadeInOut 2s ease-in-out;
+        }
+        @keyframes fadeInOut {
+            0%, 100% { opacity: 0; transform: translate(-50%, -10px); }
+            10%, 90% { opacity: 1; transform: translate(-50%, 0); }
+        }
+    </style>
+</head>
+<body>
+    <div class="phone-frame">
+        <a href="index.html" class="nav-back">← 返回</a>
+        
+        <div class="header">
+            <h1>📷 拍照识别植物</h1>
+            <p>拍摄植物照片，3秒识别品种</p>
+        </div>
+        
+        <div class="camera-area">
+            <div class="camera-preview">
+                <div class="camera-icon">📸</div>
+                <div class="camera-text">点击拍照或选择照片</div>
+            </div>
+            <div class="camera-buttons">
+                <button class="btn btn-primary">📷 拍照</button>
+                <button class="btn btn-secondary">🖼️ 相册</button>
+            </div>
+        </div>
+        
+        <div class="result-area">
+            <div class="result-title">
+                <span>✨</span>
+                识别结果
+            </div>
+            
+            <!-- 可点击的识别结果卡片 -->
+            <a href="javascript:void(0)" class="plant-result" onclick="showPlantInfo()">
+                <div class="plant-thumb">🌿</div>
+                <div class="plant-detail">
+                    <h3>绿萝 Epipremnum aureum</h3>
+                    <p>天南星科，多年生常绿植物<br>适合室内养护，耐阴性强</p>
+                    <div class="view-hint">👉 点击查看详细信息</div>
+                </div>
+            </a>
+            
+            <!-- 操作按钮 -->
+            <div class="action-buttons">
+                <button class="action-btn action-btn-secondary" onclick="addToFavorite()">
+                    ⭐ 收藏
+                </button>
+                <button class="action-btn action-btn-primary" onclick="openPlantModal()">
+                    🌱 开始种植
+                </button>
+            </div>
+        </div>
+        
+        <div class="bottom-nav">
+            <a href="02-首页.html" class="nav-item">
+                <span class="nav-icon">🏠</span>
+                <span class="nav-label">首页</span>
+            </a>
+            <a href="03-拍照识别.html" class="nav-item active">
+                <span class="nav-icon">📷</span>
+                <span class="nav-label">识别</span>
+            </a>
+            <a href="06-病虫害诊断.html" class="nav-item">
+                <span class="nav-icon">🩺</span>
+                <span class="nav-label">诊断</span>
+            </a>
+            <a href="07-植物百科.html" class="nav-item">
+                <span class="nav-icon">📚</span>
+                <span class="nav-label">百科</span>
+            </a>
+            <a href="08-个人中心.html" class="nav-item">
+                <span class="nav-icon">👤</span>
+                <span class="nav-label">我的</span>
+            </a>
+        </div>
+    </div>
+    
+    <!-- 开始种植弹窗 -->
+    <div class="modal-overlay" id="plantModal">
+        <div class="modal">
+            <div class="modal-title">🌱 开始种植</div>
+            <form>
+                <div class="form-group">
+                    <label class="form-label">植物名称</label>
+                    <input type="text" class="form-input" value="绿萝" readonly>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">种植日期</label>
+                    <input type="date" class="form-input" value="2026-07-01">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">种植地点</label>
+                    <select class="form-select">
+                        <option>客厅阳台</option>
+                        <option>卧室窗台</option>
+                        <option>书房桌面</option>
+                        <option>办公室</option>
+                        <option>露台花园</option>
+                        <option>室内房间</option>
+                        <option>其他</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">当前状态</label>
+                    <select class="form-select">
+                        <option>健康生长</option>
+                        <option>刚移植</option>
+                        <option>需要观察</option>
+                        <option>生长缓慢</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">当前阶段</label>
+                    <select class="form-select" id="growthStage">
+                        <option value="seed">🌰 种子期（未播种）</option>
+                        <option value="germination">🌱 发芽期（已播种，等待发芽）</option>
+                        <option value="seedling" selected>🌿 幼苗期（已长出叶子）</option>
+                        <option value="vegetative">🍃 生长期（快速生长中）</option>
+                        <option value="mature">🌳 成熟期（生长稳定）</option>
+                    </select>
+                    <div class="stage-hint" id="stageHint" style="font-size: 11px; color: #757575; margin-top: 5px; line-height: 1.4;">
+                        💡 绿萝幼苗期：已长出3-5片叶子，每周浇水1-2次，保持土壤湿润
+                    </div>
+                </div>
+                <div class="modal-buttons">
+                    <button type="button" class="modal-btn modal-btn-secondary" onclick="closePlantModal()">取消</button>
+                    <button type="button" class="modal-btn modal-btn-primary" onclick="confirmPlant()">确认添加</button>
+                </div>
+            </form>
+        </div>
+    </div>
+    
+    <!-- 成功提示 -->
+    <div class="toast" id="toast"></div>
+    
+    <script>
+        // 植物生长阶段描述数据（根据不同植物动态生成）
+        const plantStageInfo = {
+            '绿萝': {
+                'seed': '🌰 种子期：建议直接购买幼苗，绿萝通常不用种子繁殖',
+                'germination': '🌱 发芽期：绿萝多用扬插繁殖，2-3周可生根',
+                'seedling': '🌿 幼苗期：已长出3-5片叶子，每周浇水1-2次，保持土壤湿润',
+                'vegetative': '🍃 生长期：藤蔓快速生长，每月施肥1次，注意牵引',
+                'mature': '🌳 成熟期：藤长达1米以上，维持日常养护即可'
+            },
+            '多肉植物': {
+                'seed': '🌰 种子期：已播种，等待发芽（1-2周）',
+                'germination': '🌱 发芽期：已出芽，少量浇水，保持通风',
+                'seedling': '🌿 幼苗期：叶片肉质化，2-3周浇水1次',
+                'vegetative': '🍃 生长期：快速生长，叶片增多，注意光照',
+                'mature': '🌳 成熟期：形态稳定，可繁殖分株'
+            },
+            'default': {
+                'seed': '🌰 种子期：已准备种子，尚未播种',
+                'germination': '🌱 发芽期：已播种，等待发芽',
+                'seedling': '🌿 幼苗期：已长出叶子，需精心养护',
+                'vegetative': '🍃 生长期：快速生长中，注意水肥',
+                'mature': '🌳 成熟期：生长稳定，日常维护'
+            }
+        };
+        
+        // 当前识别的植物名称（从识别结果获取）
+        let currentPlantName = '绿萝';
+        
+        // 生长阶段切换事件
+        document.getElementById('growthStage').addEventListener('change', function() {
+            updateStageHint(this.value);
+        });
+        
+        function updateStageHint(stage) {
+            const stageHint = document.getElementById('stageHint');
+            const plantInfo = plantStageInfo[currentPlantName] || plantStageInfo['default'];
+            stageHint.textContent = '💡 ' + plantInfo[stage];
+        }
+        
+        function openPlantModal() {
+            document.getElementById('plantModal').classList.add('active');
+        }
+        
+        function closePlantModal() {
+            document.getElementById('plantModal').classList.remove('active');
+        }
+        
+        function confirmPlant() {
+            closePlantModal();
+            showToast(`✅ 已将 ${currentPlantName} 添加到我的植物`);
+            setTimeout(() => {
+                window.location.href = '02-首页.html';
+            }, 1500);
+        }
+        
+        function addToFavorite() {
+            const profile = plantProfiles[currentPlantName] || plantProfiles['绿萝'];
+            showToast(profile.favoriteToast || `⭐ 已将 ${currentPlantName} 加入收藏夹`);
+        }
+        
+        function showPlantInfo() {
+            showToast(`🌿 正在查看 ${currentPlantName} 的详情`);
+            setTimeout(() => {
+                window.location.href = `04-植物详情.html?plant=${encodeURIComponent(currentPlantName)}&from=recognition`;
+            }, 800);
+        }
+        
+        function showToast(message) {
+            const toast = document.getElementById('toast');
+            toast.textContent = message;
+            toast.style.display = 'block';
+            setTimeout(() => {
+                toast.style.display = 'none';
+            }, 2000);
+        }
+
+        const plantProfiles = {
+            '绿萝': {
+                emoji: '🌿',
+                subtitle: '天南星科，多年生常绿植物',
+                desc: '适合室内养护，耐阴性强',
+                favoriteToast: '⭐ 已将绿萝加入收藏夹',
+                defaultStage: 'seedling'
+            },
+            '玉露': {
+                emoji: '🌵',
+                subtitle: '阿福花科，小型多肉植物',
+                desc: '适合桌面与窗边养护，喜通风散射光',
+                favoriteToast: '⭐ 已将玉露加入收藏夹',
+                defaultStage: 'seedling'
+            },
+            '龟背竹': {
+                emoji: '🍃',
+                subtitle: '天南星科，大型观叶植物',
+                desc: '叶片开裂明显，适合客厅场景与氛围布置',
+                favoriteToast: '⭐ 已将龟背竹加入收藏夹',
+                defaultStage: 'vegetative'
+            }
+        };
+
+        function getCurrentPlantName() {
+            return document.querySelector('.plant-detail h3').childNodes[0].textContent.trim();
+        }
+
+        function updateRecognitionResult(plantName) {
+            const profile = plantProfiles[plantName] || plantProfiles['绿萝'];
+            document.querySelector('.plant-thumb').textContent = profile.emoji;
+            document.querySelector('.plant-detail h3').innerHTML = plantName + (plantName === '绿萝' ? ' Epipremnum aureum' : plantName === '玉露' ? ' Haworthia cooperi' : ' Monstera deliciosa');
+            document.querySelector('.plant-detail p').innerHTML = profile.subtitle + '<br>' + profile.desc;
+            document.querySelector('.form-input[readonly]').value = plantName;
+            const stageSelect = document.getElementById('growthStage');
+            if (stageSelect) {
+                stageSelect.value = profile.defaultStage;
+                currentPlantName = plantName;
+                updateStageHint(profile.defaultStage);
+            }
+        }
+
+        function initLinkedFlow() {
+            const params = new URLSearchParams(window.location.search);
+            const plantName = params.get('plant');
+            const action = params.get('action');
+            const from = params.get('from');
+
+            if (plantName) {
+                updateRecognitionResult(plantName);
+            }
+
+            if (from === 'favorite') {
+                showToast('⭐ 已从我的收藏带入植物信息');
+            }
+
+            if (action === 'startPlanting') {
+                setTimeout(() => {
+                    openPlantModal();
+                }, 400);
+            }
+        }
+
+        initLinkedFlow();
+        
+        // 点击遮罩关闭弹窗
+        document.getElementById('plantModal').addEventListener('click', function(e) {
+            if (e.target === this) {
+                closePlantModal();
+            }
+        });
+    </script>
+</body>
+</html>

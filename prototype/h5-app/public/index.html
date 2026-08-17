@@ -1,0 +1,181 @@
+﻿<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>植の物语 H5 MVP</title>
+  <style>
+    body {
+      font-family: 'PingFang SC', sans-serif;
+      margin: 0;
+      background: linear-gradient(135deg, #e8f5e9 0%, #fff9e6 100%);
+      color: #2e7d32;
+    }
+    .wrap {
+      max-width: 960px;
+      margin: 0 auto;
+      padding: 32px 20px 60px;
+    }
+    .card {
+      background: #fff;
+      border-radius: 18px;
+      padding: 20px;
+      margin-bottom: 18px;
+      box-shadow: 0 6px 24px rgba(46,125,50,0.08);
+    }
+    h1 { margin-top: 0; }
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 12px;
+    }
+    a.btn, button {
+      display: inline-block;
+      background: #2e7d32;
+      color: white;
+      border: none;
+      border-radius: 12px;
+      padding: 12px 16px;
+      text-decoration: none;
+      cursor: pointer;
+      font-size: 14px;
+    }
+    button.secondary, a.secondary {
+      background: #f1f8f4;
+      color: #2e7d32;
+    }
+    input[type="text"], input[type="file"], textarea {
+      width: 100%;
+      padding: 12px;
+      border: 1px solid #dfe7df;
+      border-radius: 10px;
+      margin-top: 8px;
+      margin-bottom: 12px;
+      box-sizing: border-box;
+    }
+    pre {
+      background: #f7faf7;
+      padding: 12px;
+      border-radius: 12px;
+      overflow: auto;
+      font-size: 12px;
+      color: #355b38;
+    }
+    .muted { color: #6f8a72; font-size: 13px; }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="card">
+      <h1>🌸 植の物语 H5 MVP</h1>
+      <p class="muted">目标：本地运行 + 优先验证 API 可用性。当前已接入百度识花与 Perenual 植物详情代理。</p>
+      <div class="grid">
+        <a class="btn" href="pages/02-首页.html">🚀 进入 App</a>
+        <a class="btn secondary" href="pages/03-拍照识别.html">拍照识别原型页</a>
+        <a class="btn secondary" href="pages/04-植物详情.html">植物详情原型页</a>
+        <a class="btn secondary" href="pages/09-我的收藏.html">我的收藏原型页</a>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>1. 服务健康检查</h2>
+      <button onclick="checkHealth()">检查 /health</button>
+      <pre id="healthResult">点击按钮开始检查</pre>
+    </div>
+
+    <div class="card">
+      <h2>2. 百度识花 Token 验证</h2>
+      <button onclick="checkToken()">验证百度 Token</button>
+      <pre id="tokenResult">点击按钮开始验证</pre>
+    </div>
+
+    <div class="card">
+      <h2>3. Perenual 植物详情验证</h2>
+      <label>植物名称</label>
+      <input id="plantName" type="text" value="Epipremnum aureum" />
+      <button onclick="searchPlantDetail()">查询植物详情</button>
+      <pre id="detailResult">输入植物名称后点击查询</pre>
+    </div>
+
+    <div class="card">
+      <h2>4. 百度识花接口验证（上传图片）</h2>
+      <p class="muted">请上传一张本地植物图片，前端会转 base64 后调用本地代理接口。</p>
+      <input id="plantImage" type="file" accept="image/*" />
+      <button onclick="identifyPlant()">上传并识别</button>
+      <pre id="identifyResult">上传图片后点击识别</pre>
+    </div>
+  </div>
+
+  <script>
+    async function prettyFetch(url, options = {}) {
+      const res = await fetch(url, options);
+      const text = await res.text();
+      try {
+        return { ok: res.ok, status: res.status, data: JSON.parse(text) };
+      } catch {
+        return { ok: res.ok, status: res.status, data: text };
+      }
+    }
+
+    async function checkHealth() {
+      const result = await prettyFetch('/health');
+      document.getElementById('healthResult').textContent = JSON.stringify(result, null, 2);
+    }
+
+    async function checkToken() {
+      const result = await prettyFetch('/api/baidu-token');
+      const data = result.data?.data;
+      document.getElementById('tokenResult').textContent = result.ok && data?.access_token
+        ? JSON.stringify({ ok: true, status: result.status, data: { authenticated: true, expiresIn: data.expires_in } }, null, 2)
+        : JSON.stringify(result, null, 2);
+    }
+
+    async function searchPlantDetail() {
+      const name = document.getElementById('plantName').value.trim();
+      const result = await prettyFetch(`/api/plant-detail?name=${encodeURIComponent(name)}`);
+      const detail = result.data?.data?.detail;
+      document.getElementById('detailResult').textContent = result.ok && detail
+        ? JSON.stringify({
+            ok: true,
+            status: result.status,
+            data: {
+              id: detail.id,
+              commonName: detail.common_name,
+              scientificName: detail.scientific_name,
+              family: detail.family,
+              watering: detail.watering,
+              sunlight: detail.sunlight
+            }
+          }, null, 2)
+        : JSON.stringify(result, null, 2);
+    }
+
+    async function fileToBase64(file) {
+      return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = () => resolve(reader.result);
+        reader.onerror = reject;
+        reader.readAsDataURL(file);
+      });
+    }
+
+    async function identifyPlant() {
+      const fileInput = document.getElementById('plantImage');
+      const file = fileInput.files[0];
+      if (!file) {
+        document.getElementById('identifyResult').textContent = '请先选择图片文件';
+        return;
+      }
+
+      document.getElementById('identifyResult').textContent = '识别中，请稍候...';
+      const imageBase64 = await fileToBase64(file);
+      const result = await prettyFetch('/api/identify-plant', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ imageBase64 })
+      });
+      document.getElementById('identifyResult').textContent = JSON.stringify(result, null, 2);
+    }
+  </script>
+</body>
+</html>

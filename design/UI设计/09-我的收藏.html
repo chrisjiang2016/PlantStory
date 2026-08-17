@@ -1,0 +1,443 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>09-我的收藏 | 植の物语</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'PingFang SC', sans-serif;
+            background: linear-gradient(135deg, #e8f5e9 0%, #fff9e6 100%);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 20px;
+        }
+        .phone-frame {
+            width: 375px;
+            height: 812px;
+            background: #fafafa;
+            border-radius: 40px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.15);
+            overflow: hidden;
+            position: relative;
+        }
+        .header {
+            background: linear-gradient(135deg, #66bb6a 0%, #81c784 100%);
+            padding: 50px 20px 20px;
+            color: white;
+            text-align: center;
+        }
+        .header-icon {
+            font-size: 42px;
+            margin-bottom: 8px;
+        }
+        .header h1 {
+            font-size: 20px;
+            font-weight: 400;
+            margin-bottom: 5px;
+        }
+        .header p {
+            font-size: 13px;
+            opacity: 0.9;
+        }
+        .nav-back {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            z-index: 100;
+            background: rgba(255,255,255,0.2);
+            color: white;
+            padding: 8px 15px;
+            border-radius: 20px;
+            text-decoration: none;
+            font-size: 14px;
+            backdrop-filter: blur(10px);
+        }
+        .content {
+            padding: 20px;
+            overflow-y: auto;
+            height: calc(100% - 200px);
+        }
+        .summary-card {
+            background: white;
+            border-radius: 18px;
+            padding: 18px;
+            margin-bottom: 15px;
+            box-shadow: 0 2px 12px rgba(0,0,0,0.06);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+        }
+        .summary-left h3 {
+            font-size: 16px;
+            color: #2e7d32;
+            margin-bottom: 6px;
+            font-weight: 500;
+        }
+        .summary-left p {
+            font-size: 12px;
+            color: #757575;
+            line-height: 1.5;
+        }
+        .summary-badge {
+            min-width: 68px;
+            height: 68px;
+            border-radius: 16px;
+            background: linear-gradient(135deg, #fff9e6 0%, #f1f8f4 100%);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            color: #2e7d32;
+        }
+        .summary-badge strong {
+            font-size: 22px;
+            line-height: 1;
+        }
+        .summary-badge span {
+            font-size: 11px;
+            margin-top: 4px;
+        }
+        .filter-row {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 15px;
+            overflow-x: auto;
+            padding-bottom: 4px;
+        }
+        .empty-state {
+            display: none;
+            background: white;
+            border-radius: 20px;
+            padding: 32px 22px;
+            box-shadow: 0 2px 12px rgba(0,0,0,0.06);
+            text-align: center;
+            margin-top: 18px;
+        }
+        .empty-state.active {
+            display: block;
+        }
+        .empty-icon {
+            font-size: 56px;
+            margin-bottom: 14px;
+        }
+        .empty-title {
+            font-size: 18px;
+            color: #2e7d32;
+            font-weight: 500;
+            margin-bottom: 8px;
+        }
+        .empty-desc {
+            font-size: 13px;
+            color: #757575;
+            line-height: 1.7;
+            margin-bottom: 18px;
+        }
+        .empty-actions {
+            display: flex;
+            gap: 10px;
+        }
+        .filter-chip {
+            white-space: nowrap;
+            padding: 8px 14px;
+            border-radius: 18px;
+            background: white;
+            color: #757575;
+            font-size: 12px;
+            border: 1px solid #eeeeee;
+        }
+        .filter-chip.active {
+            background: #2e7d32;
+            color: white;
+            border-color: #2e7d32;
+        }
+        .plant-card {
+            background: white;
+            border-radius: 18px;
+            padding: 16px;
+            margin-bottom: 14px;
+            box-shadow: 0 2px 12px rgba(0,0,0,0.06);
+        }
+        .plant-top {
+            display: flex;
+            gap: 14px;
+            margin-bottom: 14px;
+        }
+        .plant-thumb {
+            width: 76px;
+            height: 76px;
+            border-radius: 16px;
+            background: linear-gradient(135deg, #e8f5e9 0%, #fff9e6 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 40px;
+            flex-shrink: 0;
+        }
+        .plant-info {
+            flex: 1;
+        }
+        .plant-info h3 {
+            font-size: 16px;
+            color: #2e7d32;
+            font-weight: 500;
+            margin-bottom: 6px;
+        }
+        .plant-latin {
+            font-size: 12px;
+            color: #9e9e9e;
+            margin-bottom: 8px;
+        }
+        .plant-tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+            margin-bottom: 8px;
+        }
+        .tag {
+            font-size: 11px;
+            padding: 4px 8px;
+            border-radius: 10px;
+            background: #f1f8f4;
+            color: #2e7d32;
+        }
+        .plant-desc {
+            font-size: 12px;
+            color: #757575;
+            line-height: 1.5;
+        }
+        .plant-actions {
+            display: flex;
+            gap: 10px;
+        }
+        .btn {
+            flex: 1;
+            padding: 12px;
+            border: none;
+            border-radius: 12px;
+            font-size: 13px;
+            font-weight: 500;
+            cursor: pointer;
+        }
+        .btn-secondary {
+            background: #fff9e6;
+            color: #f57c00;
+            border: 1px solid #ffe0b2;
+        }
+        .btn-primary {
+            background: linear-gradient(135deg, #66bb6a 0%, #81c784 100%);
+            color: white;
+        }
+        .bottom-nav {
+            position: absolute;
+            bottom: 0;
+            width: 100%;
+            background: white;
+            padding: 12px 20px 25px;
+            display: flex;
+            justify-content: space-around;
+            border-top: 1px solid #f0f0f0;
+        }
+        .nav-item {
+            text-align: center;
+            text-decoration: none;
+            color: #9e9e9e;
+        }
+        .nav-item.active {
+            color: #2e7d32;
+        }
+        .nav-icon {
+            font-size: 24px;
+            display: block;
+            margin-bottom: 4px;
+        }
+        .nav-label {
+            font-size: 11px;
+        }
+    </style>
+</head>
+<body>
+    <div class="phone-frame">
+        <a href="08-个人中心.html" class="nav-back">← 返回</a>
+
+        <div class="header">
+            <div class="header-icon">⭐</div>
+            <h1>我的收藏</h1>
+            <p>收藏感兴趣的植物，随时查看与开始种植</p>
+        </div>
+
+        <div class="content">
+            <div class="summary-card">
+                <div class="summary-left">
+                    <h3>已收藏植物</h3>
+                    <p id="summaryDesc">你收藏了 12 种植物，可按场景、难度和习性快速筛选。</p>
+                </div>
+                <div class="summary-badge">
+                    <strong id="favoriteCount">12</strong>
+                    <span>已收藏</span>
+                </div>
+            </div>
+
+            <div class="filter-row" id="filterRow">
+                <div class="filter-chip active">全部</div>
+                <div class="filter-chip">新手友好</div>
+                <div class="filter-chip">耐阴植物</div>
+                <div class="filter-chip">桌面小型</div>
+                <div class="filter-chip">观叶类</div>
+            </div>
+
+            <div id="favoriteList">
+            <div class="plant-card" data-plant="绿萝" onclick="goToDetail('绿萝')" style="cursor: pointer;">
+                <div class="plant-top">
+                    <div class="plant-thumb">🌿</div>
+                    <div class="plant-info">
+                        <h3>绿萝</h3>
+                        <div class="plant-latin">Epipremnum aureum</div>
+                        <div class="plant-tags">
+                            <span class="tag">耐阴</span>
+                            <span class="tag">新手友好</span>
+                            <span class="tag">净化空气</span>
+                        </div>
+                        <div class="plant-desc">适合室内养护，浇水频率低，生命力强，适合作为第一盆植物。</div>
+                    </div>
+                </div>
+                <div class="plant-actions">
+                    <button class="btn btn-secondary" onclick="event.stopPropagation(); removeFavorite('绿萝')">移出收藏</button>
+                    <button class="btn btn-primary" onclick="event.stopPropagation(); startPlanting('绿萝')">开始种植</button>
+                </div>
+            </div>
+
+            <div class="plant-card" data-plant="玉露" onclick="goToDetail('玉露')" style="cursor: pointer;">
+                <div class="plant-top">
+                    <div class="plant-thumb">🌵</div>
+                    <div class="plant-info">
+                        <h3>玉露</h3>
+                        <div class="plant-latin">Haworthia cooperi</div>
+                        <div class="plant-tags">
+                            <span class="tag">多肉</span>
+                            <span class="tag">桌面小型</span>
+                            <span class="tag">低频浇水</span>
+                        </div>
+                        <div class="plant-desc">晶莹通透，适合办公桌与窗边场景，养护门槛低但需注意通风。</div>
+                    </div>
+                </div>
+                <div class="plant-actions">
+                    <button class="btn btn-secondary" onclick="event.stopPropagation(); removeFavorite('玉露')">移出收藏</button>
+                    <button class="btn btn-primary" onclick="event.stopPropagation(); startPlanting('玉露')">开始种植</button>
+                </div>
+            </div>
+
+            <div class="plant-card" data-plant="龟背竹" onclick="goToDetail('龟背竹')" style="cursor: pointer;">
+                <div class="plant-top">
+                    <div class="plant-thumb">🍃</div>
+                    <div class="plant-info">
+                        <h3>龟背竹</h3>
+                        <div class="plant-latin">Monstera deliciosa</div>
+                        <div class="plant-tags">
+                            <span class="tag">观叶</span>
+                            <span class="tag">客厅场景</span>
+                            <span class="tag">中等难度</span>
+                        </div>
+                        <div class="plant-desc">叶形高级，适合打造家居氛围感，生长期需要适度支撑与散射光。</div>
+                    </div>
+                </div>
+                <div class="plant-actions">
+                    <button class="btn btn-secondary" onclick="event.stopPropagation(); removeFavorite('龟背竹')">移出收藏</button>
+                    <button class="btn btn-primary" onclick="event.stopPropagation(); startPlanting('龟背竹')">开始种植</button>
+                </div>
+            </div>
+            </div>
+
+            <div class="empty-state" id="emptyState">
+                <div class="empty-icon">🪴</div>
+                <div class="empty-title">还没有收藏植物</div>
+                <div class="empty-desc">先去植物百科逛一逛，或者通过拍照识别发现喜欢的植物。<br>把感兴趣的植物收藏起来，后续就能随时开始种植。</div>
+                <div class="empty-actions">
+                    <button class="btn btn-secondary" onclick="window.location.href='07-植物百科.html'">去植物百科</button>
+                    <button class="btn btn-primary" onclick="window.location.href='03-拍照识别.html'">去拍照识别</button>
+                </div>
+            </div>
+        </div>
+
+        <div class="bottom-nav">
+            <a href="02-首页.html" class="nav-item">
+                <span class="nav-icon">🏠</span>
+                <span class="nav-label">首页</span>
+            </a>
+            <a href="03-拍照识别.html" class="nav-item">
+                <span class="nav-icon">📷</span>
+                <span class="nav-label">识别</span>
+            </a>
+            <a href="06-病虫害诊断.html" class="nav-item">
+                <span class="nav-icon">🩺</span>
+                <span class="nav-label">诊断</span>
+            </a>
+            <a href="07-植物百科.html" class="nav-item">
+                <span class="nav-icon">📚</span>
+                <span class="nav-label">百科</span>
+            </a>
+            <a href="08-个人中心.html" class="nav-item active">
+                <span class="nav-icon">👤</span>
+                <span class="nav-label">我的</span>
+            </a>
+        </div>
+    </div>
+
+    <script>
+        const favoriteState = {
+            total: 12,
+            visibleFavorites: ['绿萝', '玉露', '龟背竹']
+        };
+
+        function goToDetail(plantName) {
+            window.location.href = `04-植物详情.html?plant=${encodeURIComponent(plantName)}&from=favorite`;
+        }
+
+        function startPlanting(plantName) {
+            window.location.href = `03-拍照识别.html?plant=${encodeURIComponent(plantName)}&action=startPlanting&from=favorite`;
+        }
+
+        function removeFavorite(plantName) {
+            const card = document.querySelector(`[data-plant="${plantName}"]`);
+            if (!card) return;
+
+            card.style.transition = 'all 0.25s ease';
+            card.style.opacity = '0';
+            card.style.transform = 'scale(0.96)';
+            card.style.height = card.offsetHeight + 'px';
+
+            setTimeout(() => {
+                card.remove();
+                favoriteState.visibleFavorites = favoriteState.visibleFavorites.filter(name => name !== plantName);
+                favoriteState.total = Math.max(0, favoriteState.total - 1);
+                updateFavoriteView(plantName);
+            }, 220);
+        }
+
+        function updateFavoriteView(removedPlantName) {
+            document.getElementById('favoriteCount').textContent = favoriteState.total;
+
+            const hasVisibleItems = favoriteState.visibleFavorites.length > 0;
+            document.getElementById('favoriteList').style.display = hasVisibleItems ? 'block' : 'none';
+            document.getElementById('filterRow').style.display = hasVisibleItems ? 'flex' : 'none';
+
+            if (hasVisibleItems) {
+                document.getElementById('summaryDesc').textContent = `你收藏了 ${favoriteState.total} 种植物，可按场景、难度和习性快速筛选。`;
+            } else {
+                document.getElementById('summaryDesc').textContent = '你的收藏夹已经清空，去发现下一盆想养的植物吧。';
+                document.getElementById('emptyState').classList.add('active');
+            }
+
+            if (removedPlantName) {
+                setTimeout(() => {
+                    alert(`已将 ${removedPlantName} 移出收藏`);
+                }, 80);
+            }
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,16 @@
+{
+  "name": "zhi-wu-yu-h5-mvp",
+  "version": "0.1.0",
+  "private": true,
+  "description": "植の物语 H5 MVP - local runnable prototype with API validation",
+  "main": "server/index.js",
+  "scripts": {
+    "dev": "node server/index.js",
+    "start": "node server/index.js"
+  },
+  "dependencies": {
+    "dotenv": "^16.6.1",
+    "express": "^4.21.2",
+    "multer": "^1.4.5-lts.2"
+  }
+}
