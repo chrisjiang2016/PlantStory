@@ -1,0 +1,229 @@
+﻿<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>08-个人中心 | 植の物语</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'PingFang SC', sans-serif;
+            background: linear-gradient(135deg, #e8f5e9 0%, #fff9e6 100%);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 20px;
+        }
+        .phone-frame {
+            width: 375px;
+            height: 812px;
+            background: #fafafa;
+            border-radius: 40px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.15);
+            overflow: hidden;
+            position: relative;
+        }
+        .header {
+            background: linear-gradient(135deg, #66bb6a 0%, #81c784 100%);
+            padding: 50px 20px 20px;
+            color: white;
+            text-align: center;
+        }
+        .header-icon {
+            font-size: 48px;
+            margin-bottom: 10px;
+        }
+        .header h1 {
+            font-size: 20px;
+            font-weight: 400;
+            margin-bottom: 5px;
+        }
+        .header p {
+            font-size: 13px;
+            opacity: 0.9;
+        }
+        .content {
+            padding: 20px;
+            overflow-y: auto;
+            height: calc(100% - 200px);
+        }
+        .card {
+            background: white;
+            border-radius: 15px;
+            padding: 20px;
+            margin-bottom: 15px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+        }
+        .card-title {
+            font-size: 16px;
+            color: #2e7d32;
+            font-weight: 500;
+            margin-bottom: 15px;
+        }
+        .task-item {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            padding: 15px;
+            background: #f9f9f9;
+            border-radius: 12px;
+            margin-bottom: 10px;
+        }
+        .task-icon {
+            width: 50px;
+            height: 50px;
+            background: linear-gradient(135deg, #e8f5e9 0%, #fff9e6 100%);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            flex-shrink: 0;
+        }
+        .task-info {
+            flex: 1;
+        }
+        .task-name {
+            font-size: 14px;
+            color: #2e7d32;
+            font-weight: 500;
+            margin-bottom: 3px;
+        }
+        .task-meta {
+            font-size: 12px;
+            color: #9e9e9e;
+        }
+        .task-btn {
+            padding: 8px 16px;
+            background: #2e7d32;
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 12px;
+            cursor: pointer;
+        }
+        .nav-back {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            z-index: 100;
+            background: rgba(255,255,255,0.2);
+            color: white;
+            padding: 8px 15px;
+            border-radius: 20px;
+            text-decoration: none;
+            font-size: 14px;
+            backdrop-filter: blur(10px);
+        }
+        .bottom-nav {
+            position: absolute;
+            bottom: 0;
+            width: 100%;
+            background: white;
+            padding: 12px 20px 25px;
+            display: flex;
+            justify-content: space-around;
+            border-top: 1px solid #f0f0f0;
+        }
+        .nav-item {
+            text-align: center;
+            text-decoration: none;
+            color: #9e9e9e;
+            font-size: 11px;
+        }
+        .nav-icon {
+            font-size: 24px;
+            display: block;
+            margin-bottom: 4px;
+        }
+    </style>
+</head>
+<body>
+    <div class="phone-frame">
+        <a href="index.html" class="nav-back">← 返回</a>
+        
+        <div class="header">
+            <div class="header-icon">👤</div>
+            <h1>个人中心</h1>
+            <p>我的成就</p>
+        </div>
+        
+        <div class="content">            <div class="card">
+                <div style="text-align: center; padding: 20px 0;">
+                    <div style="font-size: 64px; margin-bottom: 10px;">👤</div>
+                    <div style="font-size: 18px; color: #2e7d32; font-weight: 500;">Chris</div>
+                    <div style="font-size: 13px; color: #9e9e9e; margin-top: 5px;">养花达人</div>
+                </div>
+            </div>
+            <div class="card">
+                <div class="card-title">我的收藏</div>
+                <div class="task-item" style="cursor: pointer;" onclick="window.location.href='09-我的收藏.html'">
+                    <div class="task-icon">⭐</div>
+                    <div class="task-info">
+                        <div class="task-name">收藏的植物</div>
+                        <div class="task-meta">已收藏 12 种植物，随时查看与开始种植</div>
+                    </div>
+                    <button class="task-btn" onclick="window.location.href='09-我的收藏.html'">查看</button>
+                </div>
+            </div>
+            <div class="card">
+                <div class="card-title">养护统计</div>
+                <div style="display: flex; gap: 10px; margin-bottom: 15px;">
+                    <div style="flex: 1; background: #e8f5e9; padding: 15px; border-radius: 12px; text-align: center;">
+                        <div style="font-size: 24px; color: #2e7d32; font-weight: 600;">3</div>
+                        <div style="font-size: 12px; color: #616161;">植物数量</div>
+                    </div>
+                    <div style="flex: 1; background: #fff9e6; padding: 15px; border-radius: 12px; text-align: center;">
+                        <div style="font-size: 24px; color: #f57c00; font-weight: 600;">58</div>
+                        <div style="font-size: 12px; color: #616161;">养护天数</div>
+                    </div>
+                    <div style="flex: 1; background: #f1f8f4; padding: 15px; border-radius: 12px; text-align: center;">
+                        <div style="font-size: 24px; color: #66bb6a; font-weight: 600;">92%</div>
+                        <div style="font-size: 12px; color: #616161;">完成率</div>
+                    </div>
+                </div>
+            </div>
+            <div class="card">
+                <div class="card-title">我的成就</div>
+                <div class="task-item">
+                    <div class="task-icon">🏆</div>
+                    <div class="task-info">
+                        <div class="task-name">养花达人</div>
+                        <div class="task-meta">累计养护 50+ 天</div>
+                    </div>
+                </div>
+                <div class="task-item">
+                    <div class="task-icon">💧</div>
+                    <div class="task-info">
+                        <div class="task-name">勤劳浇水手</div>
+                        <div class="task-meta">累计浇水 30 次</div>
+                    </div>
+                </div>
+            </div>        </div>
+        
+        <div class="bottom-nav">
+            <a href="02-首页.html" class="nav-item">
+                <span class="nav-icon">🏠</span>
+                首页
+            </a>
+            <a href="03-拍照识别.html" class="nav-item">
+                <span class="nav-icon">📷</span>
+                识别
+            </a>
+            <a href="06-病虫害诊断.html" class="nav-item">
+                <span class="nav-icon">🩺</span>
+                诊断
+            </a>
+            <a href="07-植物百科.html" class="nav-item">
+                <span class="nav-icon">📚</span>
+                百科
+            </a>
+            <a href="08-个人中心.html" class="nav-item">
+                <span class="nav-icon">👤</span>
+                我的
+            </a>
+        </div>
+    </div>
+</body>
+</html>

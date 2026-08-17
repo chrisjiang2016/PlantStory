@@ -1,0 +1,375 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>07 - 植物百科 | 植の物语</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', sans-serif;
+            background: linear-gradient(135deg, #e8f5e9 0%, #fff9e6 100%);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 20px;
+        }
+        .phone-frame {
+            width: 375px;
+            height: 812px;
+            background: #fafafa;
+            border-radius: 40px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.15);
+            overflow: hidden;
+            position: relative;
+        }
+        .nav-back {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            z-index: 100;
+            background: rgba(255,255,255,0.2);
+            color: white;
+            padding: 8px 15px;
+            border-radius: 20px;
+            text-decoration: none;
+            font-size: 14px;
+            backdrop-filter: blur(10px);
+        }
+        .header {
+            background: linear-gradient(135deg, #66bb6a 0%, #81c784 100%);
+            padding: 50px 20px 15px;
+            color: white;
+        }
+        .header-top {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 12px;
+        }
+        .header h1 { font-size: 20px; font-weight: 400; }
+        .header p  { font-size: 13px; opacity: 0.9; }
+        /* 搜索栏 */
+        .search-bar {
+            display: flex;
+            gap: 10px;
+            padding: 0 20px 12px;
+            background: linear-gradient(135deg, #81c784 0%, #a5d6a7 100%);
+        }
+        .search-input {
+            flex: 1;
+            padding: 10px 14px;
+            border: none;
+            border-radius: 12px;
+            font-size: 14px;
+            background: rgba(255,255,255,0.9);
+            outline: none;
+        }
+        .search-input::placeholder { color: #9e9e9e; }
+        /* 分类筛选 */
+        .filter-bar {
+            display: flex;
+            gap: 8px;
+            padding: 14px 20px;
+            overflow-x: auto;
+            background: white;
+        }
+        .filter-bar::-webkit-scrollbar { display: none; }
+        .filter-tag {
+            padding: 6px 14px;
+            border-radius: 20px;
+            font-size: 13px;
+            white-space: nowrap;
+            cursor: pointer;
+            background: #f5f5f5;
+            color: #757575;
+            border: 1px solid #e0e0e0;
+            transition: all 0.3s;
+            flex-shrink: 0;
+        }
+        .filter-tag.active {
+            background: #2e7d32;
+            color: white;
+            border-color: #2e7d32;
+        }
+        /* 植物卡片列表 */
+        .content {
+            padding: 14px 20px 85px;
+            overflow-y: auto;
+            height: calc(100% - 300px);
+        }
+        .plant-card {
+            background: white;
+            border-radius: 15px;
+            padding: 14px;
+            margin-bottom: 12px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+            display: flex;
+            gap: 14px;
+            align-items: center;
+            text-decoration: none;
+            color: inherit;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        .plant-card:hover {
+            transform: translateX(4px);
+            box-shadow: 0 4px 18px rgba(102,187,106,0.15);
+        }
+        .plant-avatar {
+            width: 64px;
+            height: 64px;
+            border-radius: 14px;
+            background: linear-gradient(135deg, #e8f5e9 0%, #fff9e6 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 32px;
+            flex-shrink: 0;
+        }
+        .plant-info { flex: 1; }
+        .plant-name {
+            font-size: 15px;
+            color: #2e7d32;
+            font-weight: 500;
+            margin-bottom: 3px;
+        }
+        .plant-latin {
+            font-size: 12px;
+            color: #9e9e9e;
+            font-style: italic;
+            margin-bottom: 6px;
+        }
+        .plant-tags { display: flex; gap: 6px; flex-wrap: wrap; }
+        .plant-tag {
+            padding: 2px 8px;
+            border-radius: 8px;
+            font-size: 11px;
+            background: #e8f5e9;
+            color: #2e7d32;
+        }
+        .plant-arrow {
+            color: #c0c0c0;
+            font-size: 18px;
+            flex-shrink: 0;
+        }
+        .empty-state {
+            text-align: center;
+            padding: 40px 10px;
+            color: #9e9e9e;
+        }
+        .empty-state .empty-icon { font-size: 56px; margin-bottom: 12px; }
+        .empty-state p { font-size: 14px; line-height: 1.6; }
+        /* 底部导航 */
+        .bottom-nav {
+            position: absolute;
+            bottom: 0;
+            width: 100%;
+            background: white;
+            padding: 12px 20px 25px;
+            display: flex;
+            justify-content: space-around;
+            border-top: 1px solid #f0f0f0;
+        }
+        .nav-item {
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s;
+            text-decoration: none;
+            color: inherit;
+        }
+        .nav-item.active .nav-icon,
+        .nav-item.active .nav-label { color: #2e7d32; }
+        .nav-icon { font-size: 24px; display: block; margin-bottom: 4px; color: #9e9e9e; }
+        .nav-label { font-size: 11px; color: #9e9e9e; }
+    </style>
+</head>
+<body>
+    <div class="phone-frame">
+        <a href="02-首页.html" class="nav-back">← 返回</a>
+
+        <div class="header">
+            <div class="header-top">
+                <h1>📚 植物百科</h1>
+            </div>
+            <p id="countText">加载中…</p>
+        </div>
+
+        <div class="search-bar">
+            <input type="text" class="search-input" id="searchInput" placeholder="🔍 搜索植物名称…">
+        </div>
+
+        <div class="filter-bar" id="filterBar">
+            <span class="filter-tag active" data-filter="all">全部</span>
+            <span class="filter-tag" data-filter="新手友好">🌱 新手友好</span>
+            <span class="filter-tag" data-filter="耐阴植物">🌙 耐阴</span>
+            <span class="filter-tag" data-filter="桌面小型">🪴 多肉</span>
+            <span class="filter-tag" data-filter="观叶类">🍃 观叶</span>
+        </div>
+
+        <div class="content" id="plantList"></div>
+
+        <div class="bottom-nav">
+            <a href="02-首页.html" class="nav-item">
+                <span class="nav-icon">🏠</span>
+                <span class="nav-label">首页</span>
+            </a>
+            <a href="03-拍照识别.html" class="nav-item">
+                <span class="nav-icon">📷</span>
+                <span class="nav-label">识别</span>
+            </a>
+            <a href="06-病虫害诊断.html" class="nav-item">
+                <span class="nav-icon">🩺</span>
+                <span class="nav-label">诊断</span>
+            </a>
+            <a href="07-植物百科.html" class="nav-item active">
+                <span class="nav-icon">📚</span>
+                <span class="nav-label">百科</span>
+            </a>
+            <a href="08-个人中心.html" class="nav-item">
+                <span class="nav-icon">👤</span>
+                <span class="nav-label">我的</span>
+            </a>
+        </div>
+    </div>
+
+    <script src="/app.js"></script>
+    <script>
+        let allPlants = [];
+        let currentFilter = 'all';
+        let searchQuery = '';
+
+        // 合并 favorites + fallbackProfiles 构建百科数据
+        function loadEncyclopediaData() {
+            const favorites = ZhiWuApp.getFavorites();
+            const fallbacks = ZhiWuApp.fallbackProfiles;
+            const plantMap = new Map();
+
+            // 先加 fallback 基础数据
+            Object.values(fallbacks).forEach(p => {
+                plantMap.set(p.commonName, {
+                    ...p,
+                    tags: ZhiWuApp.buildTags(p),
+                    isFavorite: false
+                });
+            });
+
+            // 再合并 favorites（覆盖补充信息）
+            favorites.forEach(f => {
+                const existing = plantMap.get(f.commonName) || {};
+                plantMap.set(f.commonName, {
+                    ...existing,
+                    ...f,
+                    tags: f.tags || existing.tags || ZhiWuApp.buildTags(f),
+                    isFavorite: true,
+                    emoji: f.emoji || existing.emoji || '🪴'
+                });
+            });
+
+            // 补充一些额外百科内容（即使未收藏也有展示）
+            const extraPlants = [
+                { commonName: '吊兰', scientificName: 'Chlorophytum comosum', family: '百合科', emoji: '🌿',
+                  desc: '空气净化能力强，适合新装修房间', tags: ['新手友好', '耐阴植物', '观叶类'] },
+                { commonName: '虎尾兰', scientificName: 'Sansevieria trifasciata', family: '天门冬科', emoji: '🌱',
+                  desc: '夜间释放氧气，极耐旱', tags: ['新手友好', '观叶类'] },
+                { commonName: '铜钱草', scientificName: 'Hydrocotyle vulgaris', family: '五加科', emoji: '🍀',
+                  desc: '圆形叶片可爱，水培土培皆可', tags: ['新手友好', '桌面小型'] },
+                { commonName: '芦荟', scientificName: 'Aloe vera', family: '阿福花科', emoji: '🌵',
+                  desc: '实用型植物，叶片可外用', tags: ['新手友好', '桌面小型'] },
+                { commonName: '文竹', scientificName: 'Asparagus setaceus', family: '天门冬科', emoji: '🌿',
+                  desc: '姿态优雅的书房绿植', tags: ['耐阴植物', '观叶类'] },
+                { commonName: '发财树', scientificName: 'Pachira aquatica', family: '木棉科', emoji: '🌳',
+                  desc: '寓意好，适合办公室摆放', tags: ['新手友好', '观叶类'] },
+                { commonName: '多肉观音莲', scientificName: 'Sempervivum tectorum', family: '景天科', emoji: '🌵',
+                  desc: '莲座状多肉，皮实好养', tags: ['新手友好', '桌面小型'] },
+                { commonName: '薄荷', scientificName: 'Mentha haplocalyx', family: '唇形科', emoji: '🌿',
+                  desc: '清新提神，可泡茶食用', tags: ['新手友好'] },
+                { commonName: '琴叶榕', scientificName: 'Ficus lyrata', family: '桑科', emoji: '🍃',
+                  desc: '网红观叶植物，大型装饰首选', tags: ['观叶类'] },
+                { commonName: '空气凤梨', scientificName: 'Tillandsia', family: '凤梨科', emoji: '🌸',
+                  desc: '无需土壤，悬挂养护即可', tags: ['桌面小型', '新手友好'] },
+            ];
+
+            extraPlants.forEach(p => {
+                if (!plantMap.has(p.commonName)) {
+                    plantMap.set(p.commonName, { ...p, isFavorite: false });
+                }
+            });
+
+            return Array.from(plantMap.values());
+        }
+
+        function renderList() {
+            const container = document.getElementById('plantList');
+            let filtered = allPlants;
+
+            // 分类筛选
+            if (currentFilter !== 'all') {
+                filtered = filtered.filter(p =>
+                    (p.tags || []).some(t => t.includes(currentFilter))
+                );
+            }
+
+            // 搜索筛选
+            if (searchQuery) {
+                const q = searchQuery.toLowerCase();
+                filtered = filtered.filter(p =>
+                    (p.commonName || '').toLowerCase().includes(q) ||
+                    (p.scientificName || '').toLowerCase().includes(q)
+                );
+            }
+
+            document.getElementById('countText').textContent =
+                `共 ${filtered.length} 种植物`;
+
+            if (filtered.length === 0) {
+                container.innerHTML = `
+                    <div class="empty-state">
+                        <div class="empty-icon">🔍</div>
+                        <p>没有找到匹配的植物<br>换个关键词试试</p>
+                    </div>
+                `;
+                return;
+            }
+
+            container.innerHTML = filtered.map(p => `
+                <a href="04-植物详情.html?plant=${encodeURIComponent(p.commonName)}&from=encyclopedia"
+                   class="plant-card">
+                    <div class="plant-avatar">${p.emoji || '🪴'}</div>
+                    <div class="plant-info">
+                        <div class="plant-name">${p.commonName}${p.isFavorite ? ' ❤️' : ''}</div>
+                        <div class="plant-latin">${p.scientificName || ''}</div>
+                        <div class="plant-tags">
+                            ${(p.tags || []).slice(0, 3).map(t =>
+                                `<span class="plant-tag">${t}</span>`
+                            ).join('')}
+                        </div>
+                    </div>
+                    <span class="plant-arrow">›</span>
+                </a>
+            `).join('');
+        }
+
+        // 初始化
+        allPlants = loadEncyclopediaData();
+        renderList();
+
+        // 搜索
+        document.getElementById('searchInput').addEventListener('input', (e) => {
+            searchQuery = e.target.value.trim();
+            renderList();
+        });
+
+        // 分类筛选
+        document.getElementById('filterBar').addEventListener('click', (e) => {
+            const tag = e.target.closest('.filter-tag');
+            if (!tag) return;
+            document.querySelectorAll('.filter-tag').forEach(t => t.classList.remove('active'));
+            tag.classList.add('active');
+            currentFilter = tag.dataset.filter;
+            renderList();
+        });
+    </script>
+</body>
+</html>

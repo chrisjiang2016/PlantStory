@@ -1,0 +1,208 @@
+﻿<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>01 - 启动页 | 植の物语</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', sans-serif;
+            background: linear-gradient(135deg, #e8f5e9 0%, #fff9e6 100%);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 20px;
+        }
+        .phone-frame {
+            width: 375px;
+            height: 812px;
+            background: white;
+            border-radius: 40px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.15);
+            overflow: hidden;
+            position: relative;
+        }
+        .splash-screen {
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, #66bb6a 0%, #81c784 100%);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            position: relative;
+            overflow: hidden;
+        }
+        /* 背景装饰叶子 */
+        .leaf-decoration {
+            position: absolute;
+            opacity: 0.1;
+            animation: float 6s ease-in-out infinite;
+        }
+        .leaf-1 {
+            top: 10%;
+            left: 10%;
+            font-size: 80px;
+            animation-delay: 0s;
+        }
+        .leaf-2 {
+            top: 60%;
+            right: 15%;
+            font-size: 60px;
+            animation-delay: 1s;
+        }
+        .leaf-3 {
+            bottom: 15%;
+            left: 20%;
+            font-size: 100px;
+            animation-delay: 2s;
+        }
+        @keyframes float {
+            0%, 100% {
+                transform: translateY(0) rotate(0deg);
+            }
+            50% {
+                transform: translateY(-20px) rotate(5deg);
+            }
+        }
+        /* Logo区域 */
+        .logo-container {
+            text-align: center;
+            z-index: 10;
+        }
+        .logo-icon {
+            font-size: 120px;
+            margin-bottom: 20px;
+            animation: scaleIn 0.8s ease-out;
+            filter: drop-shadow(0 10px 20px rgba(0,0,0,0.1));
+        }
+        @keyframes scaleIn {
+            from {
+                transform: scale(0);
+                opacity: 0;
+            }
+            to {
+                transform: scale(1);
+                opacity: 1;
+            }
+        }
+        .app-name {
+            font-size: 42px;
+            color: white;
+            font-weight: 300;
+            letter-spacing: 3px;
+            margin-bottom: 15px;
+            text-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            animation: fadeIn 1s ease-out 0.3s both;
+        }
+        .app-tagline {
+            font-size: 16px;
+            color: rgba(255,255,255,0.9);
+            font-weight: 300;
+            letter-spacing: 2px;
+            animation: fadeIn 1s ease-out 0.6s both;
+        }
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        /* 底部装饰 */
+        .bottom-decoration {
+            position: absolute;
+            bottom: 0;
+            width: 100%;
+            height: 200px;
+            background: rgba(255,255,255,0.05);
+            border-radius: 50% 50% 0 0;
+            transform: translateY(50px);
+        }
+        /* 加载指示 */
+        .loading-dots {
+            position: absolute;
+            bottom: 80px;
+            display: flex;
+            gap: 8px;
+        }
+        .dot {
+            width: 8px;
+            height: 8px;
+            background: rgba(255,255,255,0.6);
+            border-radius: 50%;
+            animation: bounce 1.4s infinite ease-in-out;
+        }
+        .dot:nth-child(1) {
+            animation-delay: -0.32s;
+        }
+        .dot:nth-child(2) {
+            animation-delay: -0.16s;
+        }
+        @keyframes bounce {
+            0%, 80%, 100% {
+                transform: scale(0.8);
+                opacity: 0.5;
+            }
+            40% {
+                transform: scale(1.2);
+                opacity: 1;
+            }
+        }
+        /* 返回导航 */
+        .nav-back {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            z-index: 100;
+            background: rgba(255,255,255,0.2);
+            color: white;
+            padding: 8px 15px;
+            border-radius: 20px;
+            text-decoration: none;
+            font-size: 14px;
+            backdrop-filter: blur(10px);
+            transition: all 0.3s;
+        }
+        .nav-back:hover {
+            background: rgba(255,255,255,0.3);
+        }
+    </style>
+</head>
+<body>
+    <div class="phone-frame">
+        <a href="index.html" class="nav-back">← 返回</a>
+        
+        <div class="splash-screen">
+            <!-- 背景装饰 -->
+            <div class="leaf-decoration leaf-1">🌿</div>
+            <div class="leaf-decoration leaf-2">🍃</div>
+            <div class="leaf-decoration leaf-3">🌱</div>
+            <div class="bottom-decoration"></div>
+            
+            <!-- Logo主体 -->
+            <div class="logo-container">
+                <div class="logo-icon">🌸</div>
+                <div class="app-name">植の物語</div>
+                <div class="app-tagline">记录植物生长的每一刻</div>
+            </div>
+            
+            <!-- 加载动画 -->
+            <div class="loading-dots">
+                <div class="dot"></div>
+                <div class="dot"></div>
+                <div class="dot"></div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

@@ -1,0 +1,218 @@
+﻿<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>植の物语 - UI设计稿导航</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', sans-serif;
+            background: linear-gradient(135deg, #e8f5e9 0%, #fff9e6 100%);
+            padding: 40px 20px;
+            min-height: 100vh;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        h1 {
+            text-align: center;
+            color: #2e7d32;
+            font-size: 48px;
+            margin-bottom: 10px;
+            font-weight: 300;
+            letter-spacing: 2px;
+        }
+        .subtitle {
+            text-align: center;
+            color: #66bb6a;
+            font-size: 18px;
+            margin-bottom: 50px;
+            font-weight: 300;
+        }
+        .page-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 25px;
+            margin-bottom: 50px;
+        }
+        .page-card {
+            background: white;
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 8px 30px rgba(46, 125, 50, 0.08);
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: block;
+            border: 2px solid #f1f8f4;
+        }
+        .page-card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 15px 45px rgba(46, 125, 50, 0.15);
+            border-color: #81c784;
+        }
+        .page-icon {
+            font-size: 48px;
+            margin-bottom: 15px;
+            display: block;
+            text-align: center;
+        }
+        .page-title {
+            font-size: 20px;
+            color: #2e7d32;
+            font-weight: 500;
+            margin-bottom: 10px;
+            text-align: center;
+        }
+        .page-desc {
+            font-size: 14px;
+            color: #757575;
+            line-height: 1.6;
+            text-align: center;
+        }
+        .info-section {
+            background: white;
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 8px 30px rgba(46, 125, 50, 0.08);
+            margin-top: 40px;
+        }
+        .info-section h2 {
+            color: #2e7d32;
+            font-size: 24px;
+            margin-bottom: 20px;
+            font-weight: 400;
+        }
+        .info-section p {
+            color: #616161;
+            line-height: 1.8;
+            margin-bottom: 15px;
+        }
+        .info-section ul {
+            list-style: none;
+            padding-left: 0;
+        }
+        .info-section li {
+            color: #616161;
+            line-height: 1.8;
+            padding-left: 25px;
+            position: relative;
+            margin-bottom: 10px;
+        }
+        .info-section li:before {
+            content: '🌿';
+            position: absolute;
+            left: 0;
+        }
+        .style-demo {
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+            margin-top: 20px;
+        }
+        .color-box {
+            width: 100px;
+            height: 100px;
+            border-radius: 15px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 12px;
+            font-weight: 500;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            text-align: center;
+            line-height: 1.4;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🌸 植の物语</h1>
+        <div class="subtitle">日式手绘风格 - 高保真UI设计稿</div>
+        
+        <div class="page-grid">
+            <a href="01-启动页.html" class="page-card">
+                <span class="page-icon">🌱</span>
+                <div class="page-title">01 - 启动页</div>
+                <div class="page-desc">品牌Logo + 标语展示</div>
+            </a>
+            
+            <a href="02-首页.html" class="page-card">
+                <span class="page-icon">🏠</span>
+                <div class="page-title">02 - 首页</div>
+                <div class="page-desc">我的植物列表 + 快捷入口</div>
+            </a>
+            
+            <a href="03-拍照识别.html" class="page-card">
+                <span class="page-icon">📷</span>
+                <div class="page-title">03 - 拍照识别</div>
+                <div class="page-desc">识别植物 + 自动生成养护方案</div>
+            </a>
+            
+            <a href="04-植物详情.html" class="page-card">
+                <span class="page-icon">🌿</span>
+                <div class="page-title">04 - 植物详情</div>
+                <div class="page-desc">养护方案 + 生长日记 + 记录</div>
+            </a>
+            
+            <a href="05-养护提醒.html" class="page-card">
+                <span class="page-icon">🔔</span>
+                <div class="page-title">05 - 养护提醒</div>
+                <div class="page-desc">今日任务 + 完成打卡</div>
+            </a>
+            
+            <a href="06-病虫害诊断.html" class="page-card">
+                <span class="page-icon">🩺</span>
+                <div class="page-title">06 - 病虫害诊断</div>
+                <div class="page-desc">AI识别 + 治疗方案</div>
+            </a>
+            
+            <a href="07-植物百科.html" class="page-card">
+                <span class="page-icon">📚</span>
+                <div class="page-title">07 - 植物百科</div>
+                <div class="page-desc">养护指南 + 场景分类</div>
+            </a>
+            
+            <a href="08-个人中心.html" class="page-card">
+                <span class="page-icon">👤</span>
+                <div class="page-title">08 - 个人中心</div>
+                <div class="page-desc">成就系统 + 统计看板</div>
+            </a>
+
+            <a href="09-我的收藏.html" class="page-card">
+                <span class="page-icon">⭐</span>
+                <div class="page-title">09 - 我的收藏</div>
+                <div class="page-desc">收藏植物列表 + 快速开始种植</div>
+            </a>
+        </div>
+        
+        <div class="info-section">
+            <h2>🎨 设计风格说明</h2>
+            <p><strong>整体风格：</strong>日式手绘插画风格,温暖治愈</p>
+            <ul>
+                <li><strong>色彩：</strong>以绿色系为主(#2e7d32, #66bb6a, #81c784),辅以米白、浅黄</li>
+                <li><strong>字体：</strong>圆润柔和,主标题使用细体,正文使用常规字重</li>
+                <li><strong>图标：</strong>手绘风格,线条柔和不规则</li>
+                <li><strong>插画：</strong>植物元素采用水彩质感,带有纸质纹理</li>
+                <li><strong>交互：</strong>圆角卡片 + 柔和阴影,点击有微动效</li>
+            </ul>
+            
+            <h2 style="margin-top: 30px;">🎨 主色板</h2>
+            <div class="style-demo">
+                <div class="color-box" style="background: #2e7d32;">#2e7d32<br>主绿</div>
+                <div class="color-box" style="background: #66bb6a;">#66bb6a<br>浅绿</div>
+                <div class="color-box" style="background: #81c784;">#81c784<br>嫩绿</div>
+                <div class="color-box" style="background: #fff9e6; color: #2e7d32;">#fff9e6<br>米黄</div>
+                <div class="color-box" style="background: #fffbf0; color: #2e7d32;">#fffbf0<br>浅米</div>
+                <div class="color-box" style="background: #f1f8f4; color: #2e7d32;">#f1f8f4<br>浅绿白</div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

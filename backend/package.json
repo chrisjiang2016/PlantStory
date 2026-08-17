@@ -1,0 +1,69 @@
+{
+  "name": "zhinawuyu-backend",
+  "version": "1.0.0",
+  "description": "植の物语 — 个人植物管理与识花 App 后端",
+  "main": "dist/main.js",
+  "scripts": {
+    "build": "nest build",
+    "start": "nest start",
+    "start:dev": "nest start --watch",
+    "start:prod": "node dist/src/main.js",
+    "test": "cross-env DATABASE_URL=file:./test-all.db npx prisma db push --accept-data-loss && cross-env DATABASE_URL=file:./test-all.db jest --runInBand",
+    "test:sprint-a": "cross-env DATABASE_URL=file:./test-sprint-a.db npx prisma db push --accept-data-loss && cross-env DATABASE_URL=file:./test-sprint-a.db jest --runInBand test/sprint-a.e2e-spec.ts",
+    "test:sprint-b": "cross-env DATABASE_URL=file:./test-sprint-b.db npx prisma db push --accept-data-loss && cross-env DATABASE_URL=file:./test-sprint-b.db jest --runInBand test/sprint-b-diagnosis.e2e-spec.ts",
+    "test:sprint-c": "cross-env DATABASE_URL=file:./test-sprint-c.db npx prisma db push --accept-data-loss && cross-env DATABASE_URL=file:./test-sprint-c.db jest --runInBand test/sprint-c-encyclopedia.e2e-spec.ts",
+    "test:sprint-d": "cross-env DATABASE_URL=file:./test-sprint-d.db npx prisma db push --accept-data-loss && cross-env DATABASE_URL=file:./test-sprint-d.db jest --runInBand test/sprint-d-core-modules.e2e-spec.ts",
+    "test:sprint-e": "cross-env DATABASE_URL=file:./test-sprint-e.db npx prisma db push --accept-data-loss && cross-env DATABASE_URL=file:./test-sprint-e.db jest --runInBand test/sprint-e-pagination.e2e-spec.ts",
+    "test:sprint-f": "cross-env DATABASE_URL=file:./test-sprint-f.db npx prisma db push --accept-data-loss && cross-env DATABASE_URL=file:./test-sprint-f.db jest --runInBand test/sprint-f-web-auth-cookie.e2e-spec.ts",
+    "prisma:generate": "npx prisma generate",
+    "prisma:migrate": "npx prisma migrate dev",
+    "prisma:push": "npx prisma db push",
+    "prisma:seed": "npx ts-node prisma/seed.ts"
+  },
+  "prisma": {
+    "seed": "npx ts-node prisma/seed.ts"
+  },
+  "keywords": [
+    "plant",
+    "nestjs",
+    "prisma"
+  ],
+  "author": "ChrisJ",
+  "license": "MIT",
+  "type": "commonjs",
+  "dependencies": {
+    "@nestjs/common": "^11.1.27",
+    "@nestjs/config": "^4.0.4",
+    "@nestjs/core": "^11.1.27",
+    "@nestjs/jwt": "^11.0.2",
+    "@nestjs/passport": "^11.0.5",
+    "@nestjs/platform-express": "^11.1.27",
+    "@nestjs/swagger": "^11.4.5",
+    "@prisma/client": "^6.19.3",
+    "bcrypt": "^6.0.0",
+    "class-transformer": "^0.5.1",
+    "class-validator": "^0.15.1",
+    "passport": "^0.7.0",
+    "passport-jwt": "^4.0.1",
+    "prisma": "^6.19.3",
+    "reflect-metadata": "^0.2.2",
+    "rxjs": "^7.8.2",
+    "swagger-ui-express": "^5.0.1"
+  },
+  "devDependencies": {
+    "@nestjs/cli": "^11.0.23",
+    "@nestjs/testing": "^11.1.28",
+    "@types/bcrypt": "^6.0.0",
+    "@types/jest": "^30.0.0",
+    "@types/node": "^26.1.0",
+    "@types/passport-jwt": "^4.0.1",
+    "@types/supertest": "^7.2.1",
+    "cross-env": "^10.1.0",
+    "jest": "^30.4.2",
+    "supertest": "^7.2.2",
+    "ts-jest": "^29.4.12",
+    "ts-node": "^10.9.2",
+    "tsconfig-paths": "^4.2.0",
+    "typescript": "^6.0.3"
+  }
+}

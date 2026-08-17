@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>06 - 病虫害诊断 | 植の物语</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'PingFang SC', sans-serif; background: linear-gradient(135deg, #e8f5e9 0%, #fff9e6 100%); display: flex; justify-content: center; align-items: center; min-height: 100vh; padding: 20px; }
+        .phone-frame { width: 375px; height: 812px; background: #fafafa; border-radius: 40px; box-shadow: 0 20px 60px rgba(0,0,0,0.15); overflow: hidden; position: relative; }
+        .header { background: linear-gradient(135deg, #66bb6a 0%, #81c784 100%); padding: 50px 20px 20px; color: white; text-align: center; }
+        .header h1 { font-size: 20px; font-weight: 400; margin-bottom: 5px; }
+        .header p { font-size: 13px; opacity: 0.9; }
+        .content { padding: 16px 20px 90px; overflow-y: auto; height: calc(100% - 180px); }
+        .card { background: white; border-radius: 15px; padding: 20px; margin-bottom: 15px; box-shadow: 0 2px 10px rgba(0,0,0,0.05); }
+        .card-title { font-size: 16px; color: #2e7d32; font-weight: 500; margin-bottom: 15px; display: flex; align-items: center; gap: 8px; }
+        .camera-preview { width: 100%; height: 180px; background: linear-gradient(135deg, #e8f5e9 0%, #fff9e6 100%); border-radius: 12px; display: flex; flex-direction: column; align-items: center; justify-content: center; margin-bottom: 15px; border: 2px dashed #81c784; cursor: pointer; }
+        .camera-preview img { width: 100%; height: 100%; object-fit: cover; border-radius: 12px; border: none; }
+        .camera-icon { font-size: 48px; margin-bottom: 8px; }
+        .camera-text { font-size: 13px; color: #757575; }
+        .btn { width: 100%; padding: 14px; border: none; border-radius: 12px; font-size: 14px; font-weight: 500; cursor: pointer; transition: all 0.3s; }
+        .btn-primary { background: linear-gradient(135deg, #66bb6a 0%, #81c784 100%); color: white; }
+        .btn-secondary { background: #f5f5f5; color: #2e7d32; margin-top: 10px; }
+        .btn:hover { transform: translateY(-2px); box-shadow: 0 4px 15px rgba(102,187,106,0.3); }
+        .btn-row { display: flex; gap: 10px; margin-top: 12px; }
+        .btn-row .btn { flex: 1; }
+        .result-area { display: none; }
+        .result-area.show { display: block; }
+        .result-header { display: flex; align-items: center; gap: 10px; margin-bottom: 14px; }
+        .result-badge { background: #e8f5e9; color: #2e7d32; padding: 4px 12px; border-radius: 10px; font-size: 12px; font-weight: 500; }
+        .result-badge.warning { background: #fff3e0; color: #f57c00; }
+        .result-name { font-size: 18px; color: #2e7d32; font-weight: 500; }
+        .result-desc { font-size: 13px; color: #616161; line-height: 1.7; margin-bottom: 14px; }
+        .cause-item { padding: 10px 14px; background: #f9f9f9; border-radius: 10px; margin-bottom: 8px; font-size: 13px; color: #424242; }
+        .solution-title { font-size: 14px; color: #2e7d32; font-weight: 500; margin: 14px 0 10px; }
+        .solution-item { padding: 12px; background: #f1f8f4; border-radius: 10px; margin-bottom: 8px; font-size: 13px; color: #424242; line-height: 1.6; }
+        .knowledge-card { display: flex; gap: 12px; padding: 14px; background: #f9f9f9; border-radius: 12px; margin-bottom: 10px; }
+        .knowledge-icon { width: 44px; height: 44px; background: linear-gradient(135deg, #e8f5e9 0%, #fff9e6 100%); border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 22px; flex-shrink: 0; }
+        .knowledge-info { flex: 1; }
+        .knowledge-name { font-size: 14px; color: #2e7d32; font-weight: 500; margin-bottom: 2px; }
+        .knowledge-desc { font-size: 12px; color: #9e9e9e; }
+        .nav-back { position: absolute; top: 20px; left: 20px; z-index: 100; background: rgba(255,255,255,0.2); color: white; padding: 8px 15px; border-radius: 20px; text-decoration: none; font-size: 14px; backdrop-filter: blur(10px); }
+        .bottom-nav { position: absolute; bottom: 0; width: 100%; background: white; padding: 12px 20px 25px; display: flex; justify-content: space-around; border-top: 1px solid #f0f0f0; }
+        .nav-item { text-align: center; text-decoration: none; color: #9e9e9e; font-size: 11px; }
+        .nav-item.active { color: #2e7d32; }
+        .nav-icon { font-size: 24px; display: block; margin-bottom: 4px; }
+        .toast { position: fixed; top: 80px; left: 50%; transform: translateX(-50%); background: rgba(46,125,50,0.95); color: white; padding: 12px 20px; border-radius: 20px; font-size: 14px; z-index: 2000; display: none; }
+        .loading { text-align: center; padding: 30px; color: #9e9e9e; font-size: 14px; }
+        .loading .spinner { font-size: 32px; display: block; margin-bottom: 10px; animation: pulse 1s infinite; }
+        @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.4} }
+    </style>
+</head>
+<body>
+    <div class="phone-frame">
+        <a href="02-首页.html" class="nav-back">← 返回</a>
+        <div class="header">
+            <h1>🩺 病虫害诊断</h1>
+            <p>记录症状，查阅病虫害知识库</p>
+        </div>
+        <div class="content">
+            <div class="card">
+                <div class="card-title">📝 记录症状</div>
+                <div class="camera-preview" id="cameraPreview" onclick="triggerUpload()">
+                    <div class="camera-icon" id="previewIcon">📸</div>
+                    <div class="camera-text" id="previewText">可选择图片，仅作为本地记录预览</div>
+                </div>
+                <input type="file" id="fileInput" accept="image/*" style="display:none;" />
+                <div class="btn-row">
+                    <button class="btn btn-primary" onclick="showDiagnosis('default')">📚 查看排查建议</button>
+                    <button class="btn btn-secondary" onclick="triggerUpload()">🖼️ 选择记录图片</button>
+                </div>
+            </div>
+            <div class="result-area" id="resultArea">
+                <div class="card">
+                    <div class="result-header">
+                        <span class="result-badge" id="resultBadge">知识库参考</span>
+                        <span class="result-name" id="resultName">--</span>
+                    </div>
+                    <div class="result-desc" id="resultDesc"></div>
+                    <div id="causeSection"></div>
+                    <div class="solution-title">💡 处理建议</div>
+                    <div id="solutionSection"></div>
+                </div>
+            </div>
+            <div class="loading" id="loadingArea" style="display:none;">
+                <span class="spinner">🔬</span>正在整理知识库参考...
+            </div>
+            <div class="card">
+                <div class="card-title">📚 常见问题知识库</div>
+                <div class="knowledge-card" onclick="showDiagnosis('yellow')" style="cursor:pointer"><div class="knowledge-icon">🍂</div><div class="knowledge-info"><div class="knowledge-name">叶片发黄</div><div class="knowledge-desc">缺氮、浇水过多、光照不足</div></div></div>
+                <div class="knowledge-card" onclick="showDiagnosis('aphid')" style="cursor:pointer"><div class="knowledge-icon">🐛</div><div class="knowledge-info"><div class="knowledge-name">蚜虫侵害</div><div class="knowledge-desc">吸食汁液，导致叶片卷曲变形</div></div></div>
+                <div class="knowledge-card" onclick="showDiagnosis('powderyMildew')" style="cursor:pointer"><div class="knowledge-icon">🦠</div><div class="knowledge-info"><div class="knowledge-name">白粉病</div><div class="knowledge-desc">叶片出现白色粉状物，通风不良引起</div></div></div>
+                <div class="knowledge-card" onclick="showDiagnosis('spiderMite')" style="cursor:pointer"><div class="knowledge-icon">🕷️</div><div class="knowledge-info"><div class="knowledge-name">红蜘蛛</div><div class="knowledge-desc">叶背出现细小红色虫体，干燥环境高发</div></div></div>
+            </div>
+        </div>
+        <div class="bottom-nav">
+            <a href="02-首页.html" class="nav-item"><span class="nav-icon">🏠</span><span class="nav-label">首页</span></a>
+            <a href="03-拍照识别.html" class="nav-item"><span class="nav-icon">📷</span><span class="nav-label">识别</span></a>
+            <a href="06-病虫害诊断.html" class="nav-item active"><span class="nav-icon">🩺</span><span class="nav-label">诊断</span></a>
+            <a href="07-植物百科.html" class="nav-item"><span class="nav-icon">📚</span><span class="nav-label">百科</span></a>
+            <a href="08-个人中心.html" class="nav-item"><span class="nav-icon">👤</span><span class="nav-label">我的</span></a>
+        </div>
+    </div>
+    <div class="toast" id="toast"></div>
+    <script src="/app.js"></script>
+    <script>
+        const diagnosisDB = {
+            yellow: { name: '叶片发黄：排查参考', badge: '📚 知识库参考', badgeClass: '', desc: '叶片发黄可能与浇水、光照、养分或自然代谢有关。请结合植株位置、浇水频率和叶片变化持续时间判断。', causes: ['💧 浇水过多或排水不畅', '☀️ 光照不足或突然暴晒', '🌱 缺氮、缺铁等养分问题'], solutions: ['先检查盆土湿度与排水情况', '调整到适宜的散射光环境', '持续观察；需要施肥时按产品说明少量进行'] },
+            aphid: { name: '蚜虫侵害：排查参考', badge: '📚 知识库参考', badgeClass: 'warning', desc: '蚜虫常聚集在嫩芽、叶背并吸食汁液，可能导致叶片卷曲、发黏。请先确认是否能看到成群小虫。', causes: ['🐛 嫩芽或叶背出现小型虫体', '🍯 叶片有蜜露状黏性分泌物'], solutions: ['隔离受影响植物并检查相邻植株', '用清水轻柔冲洗虫体聚集部位', '必要时按合规植保产品说明处理'] },
+            powderyMildew: { name: '白粉病：排查参考', badge: '📚 知识库参考', badgeClass: 'warning', desc: '白粉病常表现为叶面或嫩梢出现白色粉状物，潮湿、通风不足时更易发生。请先确认粉状物是否可轻擦掉。', causes: ['🌬️ 通风不足、空气湿度偏高', '🌿 植株过密或叶片长期潮湿'], solutions: ['改善通风并避免叶面长期积水', '剪除受影响明显的叶片并妥善处理', '必要时按合规植保产品说明处理'] },
+            spiderMite: { name: '红蜘蛛：排查参考', badge: '📚 知识库参考', badgeClass: 'warning', desc: '红蜘蛛常在叶背活动，可能伴随细小斑点、褪绿或蛛网。干燥高温环境下需加强观察。', causes: ['🕷️ 叶背可见细小虫体或丝状蛛网', '🌡️ 环境长期高温干燥'], solutions: ['隔离受影响植物并重点检查叶背', '适度改善环境湿度和通风', '必要时按合规植保产品说明处理'] },
+            default: { name: '如何进行问题排查', badge: '📚 知识库参考', badgeClass: '', desc: 'V1 不提供自动图片诊断。请记录异常表现后查阅知识库参考。', causes: ['记录异常部位、变化与出现时间', '回顾浇水、光照、通风等近期变化'], solutions: ['根据常见问题查阅处理建议', '严重或持续恶化时咨询园艺专业人士'] }
+        };
+
+        document.getElementById('fileInput').addEventListener('change', async function(e) {
+            const file = e.target.files[0];
+            if (!file) return;
+            await diagnoseFromFile(file);
+        });
+
+        function triggerUpload() { document.getElementById('fileInput').click(); }
+
+
+        async function diagnoseFromFile(file) {
+            document.getElementById('previewIcon').textContent = '🖼️';
+            document.getElementById('previewText').textContent = '正在载入本地预览...';
+            document.getElementById('loadingArea').style.display = 'block';
+            document.getElementById('resultArea').classList.remove('show');
+            try {
+                const reader = new FileReader();
+                reader.onload = async function(ev) {
+                    document.getElementById('cameraPreview').innerHTML = `<img src="${ev.target.result}" alt="用户选择的记录图片" />`;
+                    document.getElementById('loadingArea').style.display = 'none';
+                    showDiagnosis('default');
+                    showToast('图片仅作本地记录预览，当前不会自动识别病虫害');
+                };
+                reader.readAsDataURL(file);
+            } catch(err) {
+                document.getElementById('loadingArea').style.display = 'none';
+                showToast('记录图片预览失败：' + err.message);
+            }
+        }
+
+        function showDiagnosis(plantName) {
+            const data = diagnosisDB[plantName] || diagnosisDB['default'];
+            document.getElementById('resultBadge').textContent = data.badge;
+            document.getElementById('resultBadge').className = 'result-badge ' + data.badgeClass;
+            document.getElementById('resultName').textContent = data.name;
+            document.getElementById('resultDesc').textContent = data.desc;
+            document.getElementById('causeSection').innerHTML = '<div class="solution-title">🔍 排查方向</div>' + data.causes.map(c => `<div class="cause-item">${c}</div>`).join('');
+            document.getElementById('solutionSection').innerHTML = data.solutions.map(s => `<div class="solution-item">${s}</div>`).join('');
+            document.getElementById('resultArea').classList.add('show');
+            showToast('已展示知识库参考，不构成自动诊断结论');
+        }
+
+        function showToast(msg) {
+            const t = document.getElementById('toast');
+            t.textContent = msg; t.style.display = 'block';
+            setTimeout(() => t.style.display = 'none', 2000);
+        }
+    </script>
+</body>
+</html>

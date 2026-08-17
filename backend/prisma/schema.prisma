@@ -1,0 +1,239 @@
+// ============================================================
+// 植の物语 — Prisma Schema
+// 本地开发：SQLite | 上线：PostgreSQL（只需改 provider + DATABASE_URL）
+// 版本：V1.0
+// ============================================================
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ── 用户表 ──────────────────────────────────────────────────
+model User {
+  id           Int       @id @default(autoincrement())
+  username     String    @unique
+  passwordHash String    @map("password_hash")
+  nickname     String?
+  avatarUrl    String?   @map("avatar_url")
+  createdAt    DateTime  @default(now()) @map("created_at")
+  updatedAt    DateTime  @default(now()) @updatedAt @map("updated_at")
+
+  myPlants         MyPlant[]
+  recognitions     Recognition[]
+  favorites        Favorite[]
+  careLogs         CareLog[]
+  diaries          Diary[]
+  reminders        Reminder[]
+  diagnoses        Diagnosis[]
+  userAchievements UserAchievement[]
+
+  @@map("users")
+}
+
+// ── 植物种类表（缓存 Perenual 数据）──────────────────────
+model PlantSpecies {
+  id             Int       @id @default(autoincrement())
+  perenualId     Int?      @unique @map("perenual_id")
+  name           String
+  scientificName String?   @map("scientific_name")
+  family         String?
+  genus          String?
+  watering       String?
+  sunlight       String?
+  description    String?
+  imageUrl       String?   @map("image_url")
+  careGuide      Json?     @map("care_guide")
+  rawData        Json?     @map("raw_data")
+  createdAt      DateTime  @default(now()) @map("created_at")
+  updatedAt      DateTime  @default(now()) @updatedAt @map("updated_at")
+
+  myPlants     MyPlant[]
+  recognitions Recognition[]
+  favorites    Favorite[]
+
+  @@index([name])
+  @@map("plant_species")
+}
+
+// ── 我的植物表（用户花园实例）───────────────────────────────
+model MyPlant {
+  id           Int       @id @default(autoincrement())
+  userId       Int       @map("user_id")
+  speciesId    Int       @map("species_id")
+  nickname     String?
+  location     String?
+  currentStage String    @default("seed") @map("current_stage")
+  plantedAt    DateTime? @default(now()) @map("planted_at")
+  photoUrl     String?   @map("photo_url")
+  createdAt    DateTime  @default(now()) @map("created_at")
+  updatedAt    DateTime  @default(now()) @updatedAt @map("updated_at")
+
+  user     User          @relation(fields: [userId], references: [id])
+  species  PlantSpecies  @relation(fields: [speciesId], references: [id])
+  careLogs CareLog[]
+  diaries  Diary[]
+  reminders Reminder[]
+
+  @@index([userId])
+  @@map("my_plants")
+}
+
+// ── 识别记录表 ──────────────────────────────────────────────
+model Recognition {
+  id         Int       @id @default(autoincrement())
+  userId     Int       @map("user_id")
+  speciesId  Int?      @map("species_id")
+  imageUrl   String?   @map("image_url")
+  confidence Float?    // SQLite 不支持 Decimal，用 Float
+  rawName    String?   @map("raw_name")
+  rawData    Json?     @map("raw_data")
+  createdAt  DateTime  @default(now()) @map("created_at")
+
+  user    User          @relation(fields: [userId], references: [id])
+  species PlantSpecies? @relation(fields: [speciesId], references: [id])
+
+  @@index([userId, createdAt])
+  @@map("recognitions")
+}
+
+// ── 收藏表 ──────────────────────────────────────────────────
+model Favorite {
+  id        Int      @id @default(autoincrement())
+  userId    Int      @map("user_id")
+  speciesId Int      @map("species_id")
+  category  String?
+  createdAt DateTime @default(now()) @map("created_at")
+
+  user    User          @relation(fields: [userId], references: [id])
+  species PlantSpecies  @relation(fields: [speciesId], references: [id])
+
+  @@unique([userId, speciesId])
+  @@index([userId, createdAt])
+  @@map("favorites")
+}
+
+// ── 养护记录表 ──────────────────────────────────────────────
+model CareLog {
+  id          Int      @id @default(autoincrement())
+  userId      Int      @map("user_id")
+  myPlantId   Int      @map("my_plant_id")
+  careType    String   @map("care_type")
+  note        String?
+  performedAt DateTime @default(now()) @map("performed_at")
+  createdAt   DateTime @default(now()) @map("created_at")
+
+  user    User    @relation(fields: [userId], references: [id])
+  myPlant MyPlant @relation(fields: [myPlantId], references: [id])
+
+  @@index([userId, performedAt])
+  @@index([myPlantId, performedAt])
+  @@map("care_logs")
+}
+
+// ── 生长日记表 ──────────────────────────────────────────────
+model Diary {
+  id        Int      @id @default(autoincrement())
+  userId    Int      @map("user_id")
+  myPlantId Int      @map("my_plant_id")
+  content   String?
+  imageUrl  String?  @map("image_url")
+  createdAt DateTime @default(now()) @map("created_at")
+
+  user    User    @relation(fields: [userId], references: [id])
+  myPlant MyPlant @relation(fields: [myPlantId], references: [id])
+
+  @@index([myPlantId, createdAt])
+  @@map("diaries")
+}
+
+// ── 养护提醒表 ──────────────────────────────────────────────
+model Reminder {
+  id          Int       @id @default(autoincrement())
+  userId      Int       @map("user_id")
+  myPlantId   Int?      @map("my_plant_id")
+  careType    String?   @map("care_type")
+  title       String
+  remindAt    DateTime  @map("remind_at")
+  repeatRule  String?   @map("repeat_rule")
+  isCompleted Boolean   @default(false) @map("is_completed")
+  completedAt DateTime? @map("completed_at")
+  createdAt   DateTime  @default(now()) @map("created_at")
+  updatedAt   DateTime  @default(now()) @updatedAt @map("updated_at")
+
+  user    User     @relation(fields: [userId], references: [id])
+  myPlant MyPlant? @relation(fields: [myPlantId], references: [id])
+
+  @@index([userId, remindAt])
+  @@index([userId, isCompleted])
+  @@map("reminders")
+}
+
+// ── 病虫害诊断表 ────────────────────────────────────────────
+model Diagnosis {
+  id            Int      @id @default(autoincrement())
+  userId        Int      @map("user_id")
+  pestDiseaseId Int?     @map("pest_disease_id")
+  imageUrl      String?  @map("image_url")
+  symptomDesc   String?  @map("symptom_desc")
+  rawData       Json?    @map("raw_data")
+  createdAt     DateTime @default(now()) @map("created_at")
+
+  user        User         @relation(fields: [userId], references: [id])
+  pestDisease PestDisease? @relation(fields: [pestDiseaseId], references: [id])
+
+  @@index([userId, createdAt])
+  @@map("diagnoses")
+}
+
+// ── 病虫害知识表（缓存 Perenual）───────────────────────────
+model PestDisease {
+  id             Int      @id @default(autoincrement())
+  perenualId     Int?     @unique @map("perenual_id")
+  name           String
+  scientificName String?  @map("scientific_name")
+  type           String?
+  description    String?
+  treatment      String?
+  imageUrl       String?  @map("image_url")
+  rawData        Json?    @map("raw_data")
+  createdAt      DateTime @default(now()) @map("created_at")
+
+  diagnoses Diagnosis[]
+
+  @@map("pest_diseases")
+}
+
+// ── 成就定义表 ──────────────────────────────────────────────
+model Achievement {
+  id             Int      @id @default(autoincrement())
+  code           String   @unique
+  name           String
+  description    String?
+  icon           String?
+  conditionType  String?  @map("condition_type")
+  conditionValue Int?     @map("condition_value")
+  createdAt      DateTime @default(now()) @map("created_at")
+
+  userAchievements UserAchievement[]
+
+  @@map("achievements")
+}
+
+// ── 用户成就表 ──────────────────────────────────────────────
+model UserAchievement {
+  id            Int      @id @default(autoincrement())
+  userId        Int      @map("user_id")
+  achievementId Int      @map("achievement_id")
+  unlockedAt    DateTime @default(now()) @map("unlocked_at")
+
+  user        User        @relation(fields: [userId], references: [id])
+  achievement Achievement @relation(fields: [achievementId], references: [id])
+
+  @@unique([userId, achievementId])
+  @@map("user_achievements")
+}

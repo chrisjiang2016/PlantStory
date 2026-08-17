@@ -1,0 +1,434 @@
+﻿<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>04 - 植物详情 | 植の物语</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'PingFang SC', sans-serif;
+            background: linear-gradient(135deg, #e8f5e9 0%, #fff9e6 100%);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 20px;
+        }
+        .phone-frame {
+            width: 375px;
+            height: 812px;
+            background: #fafafa;
+            border-radius: 40px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.15);
+            overflow: hidden;
+            position: relative;
+        }
+        .hero-image {
+            width: 100%;
+            height: 250px;
+            background: linear-gradient(135deg, #66bb6a 0%, #81c784 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 120px;
+            position: relative;
+        }
+        .source-badge {
+            position: absolute;
+            right: 20px;
+            bottom: 16px;
+            background: rgba(255,255,255,0.22);
+            color: white;
+            padding: 6px 12px;
+            border-radius: 16px;
+            font-size: 11px;
+            backdrop-filter: blur(10px);
+        }
+        .content {
+            padding: 20px;
+            overflow-y: auto;
+            height: calc(100% - 320px);
+        }
+        .plant-header {
+            margin-bottom: 20px;
+        }
+        .plant-header h1 {
+            font-size: 24px;
+            color: #2e7d32;
+            margin-bottom: 5px;
+        }
+        .plant-header p {
+            font-size: 14px;
+            color: #757575;
+        }
+        .stats-row {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+        .stat-card {
+            flex: 1;
+            background: white;
+            padding: 15px;
+            border-radius: 15px;
+            text-align: center;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+        }
+        .stat-icon {
+            font-size: 24px;
+            margin-bottom: 5px;
+        }
+        .stat-value {
+            font-size: 16px;
+            color: #2e7d32;
+            font-weight: 600;
+            margin-bottom: 2px;
+        }
+        .stat-label {
+            font-size: 11px;
+            color: #9e9e9e;
+        }
+        .section {
+            background: white;
+            border-radius: 15px;
+            padding: 20px;
+            margin-bottom: 15px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+        }
+        .section-title {
+            font-size: 16px;
+            color: #2e7d32;
+            font-weight: 500;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .care-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 12px 0;
+            border-bottom: 1px solid #f5f5f5;
+        }
+        .care-item:last-child {
+            border-bottom: none;
+        }
+        .care-label {
+            font-size: 14px;
+            color: #616161;
+        }
+        .care-value {
+            font-size: 14px;
+            color: #2e7d32;
+            font-weight: 500;
+        }
+        .diary-item {
+            display: flex;
+            gap: 12px;
+            padding: 12px;
+            background: #f9f9f9;
+            border-radius: 12px;
+            margin-bottom: 10px;
+        }
+        .diary-date {
+            width: 50px;
+            text-align: center;
+            flex-shrink: 0;
+        }
+        .diary-day {
+            font-size: 20px;
+            color: #2e7d32;
+            font-weight: 600;
+        }
+        .diary-month {
+            font-size: 11px;
+            color: #9e9e9e;
+        }
+        .diary-content {
+            flex: 1;
+        }
+        .diary-content p {
+            font-size: 13px;
+            color: #616161;
+            line-height: 1.5;
+        }
+        .action-buttons {
+            display: flex;
+            gap: 10px;
+            margin-top: 20px;
+        }
+        .btn {
+            flex: 1;
+            padding: 12px;
+            border: none;
+            border-radius: 12px;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+        }
+        .btn-primary {
+            background: #2e7d32;
+            color: white;
+        }
+        .btn-secondary {
+            background: #f5f5f5;
+            color: #2e7d32;
+        }
+        .nav-back {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            z-index: 100;
+            background: rgba(0,0,0,0.3);
+            color: white;
+            padding: 8px 15px;
+            border-radius: 20px;
+            text-decoration: none;
+            font-size: 14px;
+            backdrop-filter: blur(10px);
+        }
+        .bottom-nav {
+            position: absolute;
+            bottom: 0;
+            width: 100%;
+            background: white;
+            padding: 12px 20px 25px;
+            display: flex;
+            justify-content: space-around;
+            border-top: 1px solid #f0f0f0;
+        }
+        .nav-item {
+            text-align: center;
+            text-decoration: none;
+            color: #9e9e9e;
+            font-size: 11px;
+        }
+        .nav-icon {
+            font-size: 24px;
+            display: block;
+            margin-bottom: 4px;
+        }
+    </style>
+</head>
+<body>
+    <div class="phone-frame">
+        <a href="08-个人中心.html" class="nav-back" id="backLink">← 返回</a>
+        
+        <div class="hero-image" id="heroImage">
+            <span id="heroEmoji">🌿</span>
+            <div class="source-badge" id="sourceBadge">来自收藏</div>
+        </div>
+        
+        <div class="content">
+            <div class="plant-header">
+                <h1 id="plantName">绿萝</h1>
+                <p id="plantSubtitle">Epipremnum aureum · 天南星科</p>
+            </div>
+            
+            <div class="stats-row">
+                <div class="stat-card">
+                    <div class="stat-icon">📅</div>
+                    <div class="stat-value" id="careDays">32天</div>
+                    <div class="stat-label">养护天数</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon">💧</div>
+                    <div class="stat-value" id="nextWater">今天</div>
+                    <div class="stat-label">下次浇水</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon">🌱</div>
+                    <div class="stat-value" id="growthStatus">良好</div>
+                    <div class="stat-label">生长状态</div>
+                </div>
+            </div>
+            
+            <div class="section">
+                <div class="section-title">
+                    <span>📋</span>
+                    养护方案
+                </div>
+                <div class="care-item">
+                    <span class="care-label">💧 浇水频率</span>
+                    <span class="care-value" id="wateringFreq">每 3-5 天</span>
+                </div>
+                <div class="care-item">
+                    <span class="care-label">☀️ 光照需求</span>
+                    <span class="care-value" id="lightNeed">半阴 / 散射光</span>
+                </div>
+                <div class="care-item">
+                    <span class="care-label">🌡️ 适宜温度</span>
+                    <span class="care-value" id="tempRange">15-30°C</span>
+                </div>
+                <div class="care-item">
+                    <span class="care-label">🌿 施肥周期</span>
+                    <span class="care-value" id="fertilizerCycle">每 2 周</span>
+                </div>
+            </div>
+            
+            <div class="section">
+                <div class="section-title">
+                    <span>📸</span>
+                    生长日记
+                </div>
+                <div class="diary-item">
+                    <div class="diary-date">
+                        <div class="diary-day">01</div>
+                        <div class="diary-month">7月</div>
+                    </div>
+                    <div class="diary-content">
+                        <p>🌱 今天新长出了一片叶子，状态很好！</p>
+                    </div>
+                </div>
+                <div class="diary-item">
+                    <div class="diary-date">
+                        <div class="diary-day">28</div>
+                        <div class="diary-month">6月</div>
+                    </div>
+                    <div class="diary-content">
+                        <p>💧 完成浇水，土壤湿润度适中</p>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="action-buttons">
+                <button class="btn btn-primary">💧 浇水打卡</button>
+                <button class="btn btn-secondary" onclick="startPlantingFromDetail()">🌱 开始种植</button>
+            </div>
+        </div>
+        
+        <div class="bottom-nav">
+            <a href="02-首页.html" class="nav-item">
+                <span class="nav-icon">🏠</span>
+                首页
+            </a>
+            <a href="03-拍照识别.html" class="nav-item">
+                <span class="nav-icon">📷</span>
+                识别
+            </a>
+            <a href="06-病虫害诊断.html" class="nav-item">
+                <span class="nav-icon">🩺</span>
+                诊断
+            </a>
+            <a href="07-植物百科.html" class="nav-item">
+                <span class="nav-icon">📚</span>
+                百科
+            </a>
+            <a href="08-个人中心.html" class="nav-item">
+                <span class="nav-icon">👤</span>
+                我的
+            </a>
+        </div>
+    </div>
+
+    <script src="/app.js"></script>
+    <script>
+        const fallbackDatabase = {
+            '绿萝': {
+                careDays: '32天',
+                nextWater: '今天',
+                growthStatus: '良好',
+                wateringFreq: '每 3-5 天',
+                lightNeed: '半阴 / 散射光',
+                tempRange: '15-30°C',
+                fertilizerCycle: '每 2 周'
+            },
+            '玉露': {
+                careDays: '18天',
+                nextWater: '3天后',
+                growthStatus: '稳定',
+                wateringFreq: '每 10-15 天',
+                lightNeed: '明亮散射光',
+                tempRange: '10-28°C',
+                fertilizerCycle: '每 4 周'
+            },
+            '龟背竹': {
+                careDays: '46天',
+                nextWater: '明天',
+                growthStatus: '旺盛',
+                wateringFreq: '每 4-6 天',
+                lightNeed: '明亮散射光',
+                tempRange: '18-30°C',
+                fertilizerCycle: '每 2-3 周'
+            }
+        };
+
+        const params = new URLSearchParams(window.location.search);
+        const requestedPlantName = params.get('plant') || '绿萝';
+        const source = params.get('from') || '百科';
+
+        async function initDetailPage() {
+            const myPlants = ZhiWuApp.getMyPlants();
+            const planted = myPlants.find(item => item.commonName === requestedPlantName);
+            const fallback = fallbackDatabase[requestedPlantName] || fallbackDatabase['绿萝'];
+            let detail;
+
+            try {
+                detail = await ZhiWuApp.fetchPlantDetail(requestedPlantName);
+            } catch (error) {
+                detail = ZhiWuApp.fallbackProfiles[requestedPlantName] || ZhiWuApp.fallbackProfiles['绿萝'];
+            }
+
+            const commonName = detail.commonName || requestedPlantName;
+            document.getElementById('heroEmoji').textContent = detail.emoji || '🪴';
+            document.getElementById('plantName').textContent = commonName;
+            document.getElementById('plantSubtitle').textContent = detail.subtitle || `${detail.scientificName || ''} · ${detail.family || ''}`;
+            document.getElementById('careDays').textContent = planted ? `${Math.max(1, Math.floor((Date.now() - new Date(planted.createdAt).getTime()) / 86400000))}天` : fallback.careDays;
+            document.getElementById('nextWater').textContent = planted ? '根据记录待提醒' : fallback.nextWater;
+            document.getElementById('growthStatus').textContent = planted?.status || fallback.growthStatus;
+            document.getElementById('wateringFreq').textContent = detail.watering || fallback.wateringFreq;
+            document.getElementById('lightNeed').textContent = detail.sunlight || fallback.lightNeed;
+            document.getElementById('tempRange').textContent = detail.temperature || fallback.tempRange;
+            document.getElementById('fertilizerCycle').textContent = detail.fertilizer || fallback.fertilizerCycle;
+            document.getElementById('sourceBadge').textContent = source === 'favorite' ? '来自收藏' : source === 'recognition' ? '识别结果' : '植物详情';
+            document.getElementById('backLink').href = source === 'favorite' ? '09-我的收藏.html' : source === 'recognition' ? '03-拍照识别.html' : '02-首页.html';
+            renderDiary(planted, detail);
+        }
+
+        function renderDiary(planted, detail) {
+            const diarySection = document.querySelectorAll('.section')[1];
+            const plantedAt = planted?.plantedAt || new Date().toISOString().slice(0, 10);
+            const date = new Date(plantedAt);
+            const day = String(date.getDate()).padStart(2, '0');
+            const month = `${date.getMonth() + 1}月`;
+            const statusText = planted?.status || '已同步识别结果';
+            const locationText = planted?.location || '待设置位置';
+            diarySection.innerHTML = `
+                <div class="section-title">
+                    <span>📸</span>
+                    生长日记
+                </div>
+                <div class="diary-item">
+                    <div class="diary-date">
+                        <div class="diary-day">${day}</div>
+                        <div class="diary-month">${month}</div>
+                    </div>
+                    <div class="diary-content">
+                        <p>🌱 ${commonSentence(detail.commonName || requestedPlantName)} 已进入你的养护档案，当前位置：${locationText}。</p>
+                    </div>
+                </div>
+                <div class="diary-item">
+                    <div class="diary-date">
+                        <div class="diary-day">AI</div>
+                        <div class="diary-month">建议</div>
+                    </div>
+                    <div class="diary-content">
+                        <p>💡 当前状态：${statusText}；建议关注 ${detail.sunlight || '光照'} 与 ${detail.watering || '浇水节奏'}。</p>
+                    </div>
+                </div>
+            `;
+        }
+
+        function commonSentence(name) {
+            return name === '绿萝' ? '绿萝' : name;
+        }
+
+        function startPlantingFromDetail() {
+            window.location.href = `03-拍照识别.html?plant=${encodeURIComponent(requestedPlantName)}&action=startPlanting&from=detail`;
+        }
+
+        initDetailPage();
+    </script>
+</body>
+</html>
