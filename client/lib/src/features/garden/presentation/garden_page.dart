@@ -2,7 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../../core/demo/demo_mode_controller.dart';
 import '../../auth/application/auth_controller.dart';
+import '../data/demo_garden_controller.dart';
 import '../data/garden_models.dart';
 import '../data/garden_repository.dart';
 
@@ -25,12 +27,19 @@ class GardenPage extends ConsumerWidget {
         child: SafeArea(
           child: plants.when(
             data: (items) => RefreshIndicator(
-              onRefresh: () => ref.refresh(gardenPlantsProvider.future),
+              onRefresh: () async {
+                if (ref.read(demoModeProvider)) {
+                  await ref.read(demoGardenProvider.notifier).restore();
+                  return;
+                }
+                final _ = await ref.refresh(gardenPlantsProvider.future);
+              },
               child: ListView(
                 padding: const EdgeInsets.fromLTRB(20, 18, 20, 28),
                 children: [
                   _GardenHeader(
                     plantCount: items.length,
+                    onAddPlant: ref.read(demoModeProvider) ? () => _showAddPlantDialog(context, ref) : null,
                     onLogout: () async {
                       await ref.read(authControllerProvider.notifier).logout();
                       if (context.mounted) context.go('/login');
@@ -50,7 +59,13 @@ class GardenPage extends ConsumerWidget {
                           ),
                     ),
                     const SizedBox(height: 10),
-                    for (final plant in items) _PlantCard(plant: plant),
+                    for (final plant in items)
+                      _PlantCard(
+                        plant: plant,
+                        onDelete: ref.read(demoModeProvider)
+                            ? () => _confirmDeletePlant(context, ref, plant)
+                            : null,
+                      ),
                   ],
                 ],
               ),
@@ -67,11 +82,93 @@ class GardenPage extends ConsumerWidget {
   }
 }
 
+Future<void> _showAddPlantDialog(BuildContext context, WidgetRef ref) async {
+  final nameController = TextEditingController();
+  final nicknameController = TextEditingController();
+  final locationController = TextEditingController();
+  final formKey = GlobalKey<FormState>();
+
+  final result = await showDialog<bool>(
+    context: context,
+    builder: (dialogContext) => AlertDialog(
+      title: const Text('添加植物'),
+      content: Form(
+        key: formKey,
+        child: SingleChildScrollView(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              TextFormField(
+                controller: nameController,
+                autofocus: true,
+                decoration: const InputDecoration(labelText: '植物名称', hintText: '例如：琴叶榕'),
+                validator: (value) => value?.trim().isEmpty == true ? '请输入植物名称' : null,
+              ),
+              TextField(
+                controller: nicknameController,
+                decoration: const InputDecoration(labelText: '昵称（可选）'),
+              ),
+              TextField(
+                controller: locationController,
+                decoration: const InputDecoration(labelText: '摆放位置（可选）'),
+              ),
+            ],
+          ),
+        ),
+      ),
+      actions: [
+        TextButton(onPressed: () => Navigator.pop(dialogContext), child: const Text('取消')),
+        FilledButton(
+          onPressed: () {
+            if (formKey.currentState?.validate() == true) Navigator.pop(dialogContext, true);
+          },
+          child: const Text('加入花园'),
+        ),
+      ],
+    ),
+  );
+
+  if (result == true && context.mounted) {
+    await ref.read(demoGardenProvider.notifier).addPlant(
+          name: nameController.text,
+          nickname: nicknameController.text,
+          location: locationController.text,
+        );
+    ref.invalidate(gardenPlantsProvider);
+  }
+  nameController.dispose();
+  nicknameController.dispose();
+  locationController.dispose();
+}
+
+Future<void> _confirmDeletePlant(BuildContext context, WidgetRef ref, GardenPlant plant) async {
+  final confirmed = await showDialog<bool>(
+    context: context,
+    builder: (dialogContext) => AlertDialog(
+      title: const Text('删除植物？'),
+      content: Text('将从 Demo 花园中移除“${plant.displayName}”。'),
+      actions: [
+        TextButton(onPressed: () => Navigator.pop(dialogContext, false), child: const Text('取消')),
+        FilledButton.tonal(
+          onPressed: () => Navigator.pop(dialogContext, true),
+          child: const Text('删除'),
+        ),
+      ],
+    ),
+  );
+
+  if (confirmed == true && context.mounted) {
+    await ref.read(demoGardenProvider.notifier).removePlant(plant.id);
+    ref.invalidate(gardenPlantsProvider);
+  }
+}
+
 class _GardenHeader extends StatelessWidget {
-  const _GardenHeader({required this.plantCount, required this.onLogout});
+  const _GardenHeader({required this.plantCount, required this.onLogout, this.onAddPlant});
 
   final int plantCount;
   final Future<void> Function() onLogout;
+  final VoidCallback? onAddPlant;
 
   @override
   Widget build(BuildContext context) {
@@ -96,6 +193,12 @@ class _GardenHeader extends StatelessWidget {
             ],
           ),
         ),
+        if (onAddPlant != null)
+          IconButton.filledTonal(
+            tooltip: '添加植物',
+            onPressed: onAddPlant,
+            icon: const Icon(Icons.add),
+          ),
         IconButton.filledTonal(
           tooltip: '退出登录',
           onPressed: onLogout,
@@ -165,9 +268,10 @@ class _GardenSummaryCard extends StatelessWidget {
 }
 
 class _PlantCard extends StatelessWidget {
-  const _PlantCard({required this.plant});
+  const _PlantCard({required this.plant, this.onDelete});
 
   final GardenPlant plant;
+  final VoidCallback? onDelete;
 
   @override
   Widget build(BuildContext context) {
@@ -193,12 +297,25 @@ class _PlantCard extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(
-                  plant.displayName,
-                  style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                        fontWeight: FontWeight.w800,
-                        color: const Color(0xFF1B5E20),
+                Row(
+                  children: [
+                    Expanded(
+                      child: Text(
+                        plant.displayName,
+                        style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                              fontWeight: FontWeight.w800,
+                              color: const Color(0xFF1B5E20),
+                            ),
                       ),
+                    ),
+                    if (onDelete != null)
+                      IconButton(
+                        tooltip: '删除植物',
+                        onPressed: onDelete,
+                        icon: const Icon(Icons.delete_outline, size: 20),
+                        color: Colors.black38,
+                      ),
+                  ],
                 ),
                 const SizedBox(height: 4),
                 Text(
