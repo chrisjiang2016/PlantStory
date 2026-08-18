@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../../core/demo/demo_mode_controller.dart';
 import '../application/auth_controller.dart';
 
 class LoginPage extends ConsumerStatefulWidget {
@@ -168,6 +169,30 @@ class _LoginPageState extends ConsumerState<LoginPage> {
                                   ? null
                                   : () => setState(() => _isRegistering = !_isRegistering),
                               child: Text(_isRegistering ? '已有账号？去登录' : '还没有账号？创建一个'),
+                            ),
+                            const SizedBox(height: 4),
+                            OutlinedButton.icon(
+                              onPressed: isLoading
+                                  ? null
+                                  : () async {
+                                      await ref.read(demoModeProvider.notifier).enable();
+                                      if (!context.mounted) return;
+                                      context.go('/garden');
+                                    },
+                              icon: const Icon(Icons.explore_outlined),
+                              label: const Text('立即体验 Demo'),
+                              style: OutlinedButton.styleFrom(
+                                minimumSize: const Size.fromHeight(48),
+                                foregroundColor: const Color(0xFF2E7D32),
+                                side: const BorderSide(color: Color(0xFF81C784)),
+                                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                              ),
+                            ),
+                            const SizedBox(height: 8),
+                            Text(
+                              '无需注册，数据仅保存在当前浏览器。',
+                              textAlign: TextAlign.center,
+                              style: Theme.of(context).textTheme.bodySmall?.copyWith(color: Colors.black45),
                             ),
                             if (authState.hasError) ...[
                               const SizedBox(height: 12),
