@@ -8,6 +8,7 @@ import 'features/auth/presentation/login_page.dart';
 import 'features/garden/data/demo_garden_controller.dart';
 import 'features/garden/presentation/garden_page.dart';
 import 'features/recognition/presentation/recognition_page.dart';
+import 'features/reminders/data/demo_reminder_controller.dart';
 import 'features/reminders/presentation/reminders_page.dart';
 import 'theme/app_theme.dart';
 
@@ -79,6 +80,7 @@ class _SplashPageState extends ConsumerState<SplashPage> {
       await ref.read(demoModeProvider.notifier).restore();
       if (ref.read(demoModeProvider)) {
         await ref.read(demoGardenProvider.notifier).restore();
+        await ref.read(demoRemindersProvider.notifier).restore();
         if (mounted) context.go('/garden');
         return;
       }
@@ -129,6 +131,7 @@ class _AuthenticatedShellState extends ConsumerState<AuthenticatedShell> {
     await ref.read(demoModeProvider.notifier).restore();
     if (ref.read(demoModeProvider)) {
       await ref.read(demoGardenProvider.notifier).restore();
+      await ref.read(demoRemindersProvider.notifier).restore();
       if (mounted) setState(() => _checked = true);
       return;
     }
