@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
+import 'core/demo/demo_mode_controller.dart';
 import 'features/auth/application/auth_controller.dart';
 import 'features/auth/presentation/login_page.dart';
 import 'features/garden/presentation/garden_page.dart';
@@ -74,6 +75,12 @@ class _SplashPageState extends ConsumerState<SplashPage> {
   void initState() {
     super.initState();
     Future.microtask(() async {
+      await ref.read(demoModeProvider.notifier).restore();
+      if (ref.read(demoModeProvider)) {
+        if (mounted) context.go('/garden');
+        return;
+      }
+
       await ref.read(authControllerProvider.notifier).restoreSession();
       if (!mounted) return;
       final user = ref.read(authControllerProvider).valueOrNull;
@@ -117,6 +124,12 @@ class _AuthenticatedShellState extends ConsumerState<AuthenticatedShell> {
   }
 
   Future<void> _ensureAuthenticated() async {
+    await ref.read(demoModeProvider.notifier).restore();
+    if (ref.read(demoModeProvider)) {
+      if (mounted) setState(() => _checked = true);
+      return;
+    }
+
     final currentUser = ref.read(authControllerProvider).valueOrNull;
     if (currentUser == null) {
       await ref.read(authControllerProvider.notifier).restoreSession();
@@ -132,8 +145,9 @@ class _AuthenticatedShellState extends ConsumerState<AuthenticatedShell> {
 
   @override
   Widget build(BuildContext context) {
+    final isDemoMode = ref.watch(demoModeProvider);
     final authState = ref.watch(authControllerProvider);
-    if (!_checked || authState.isLoading) {
+    if (!_checked || (!isDemoMode && authState.isLoading)) {
       return const Scaffold(
         body: Center(
           child: Column(
