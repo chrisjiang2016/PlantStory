@@ -1,5 +1,6 @@
 backend/
-prototype/
+prototype/h5-app/node_modules/
+prototype/h5-app/.env
 design/
 docs/
 memory/
