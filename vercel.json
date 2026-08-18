@@ -1,20 +1,5 @@
 {
   "version": 2,
-  "builds": [
-    {
-      "src": "client",
-      "use": "@vercel/static-build",
-      "config": {
-        "distDir": "build/web"
-      }
-    }
-  ],
-  "routes": [
-    {
-      "src": "/(.*)",
-      "dest": "/client/$1"
-    }
-  ],
-  "buildCommand": "cd client && flutter build web --release --web-renderer canvaskit",
-  "outputDirectory": "client/build/web"
+  "outputDirectory": "prototype/h5-app/public",
+  "cleanUrls": true
 }
