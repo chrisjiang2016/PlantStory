@@ -5,7 +5,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:image_picker/image_picker.dart';
 
+import '../../../core/demo/demo_mode_controller.dart';
+import '../../garden/data/demo_garden_controller.dart';
 import '../../garden/data/garden_repository.dart';
+import '../data/demo_recognition.dart';
 import '../data/recognition_models.dart';
 import '../data/recognition_repository.dart';
 
@@ -30,6 +33,20 @@ class _RecognitionPageState extends ConsumerState<RecognitionPage> {
   void initState() {
     super.initState();
     _result = widget.initialResult;
+  }
+
+  Future<void> _runDemoIdentification() async {
+    setState(() {
+      _isIdentifying = true;
+      _errorMessage = null;
+      _result = null;
+    });
+    await Future<void>.delayed(const Duration(milliseconds: 550));
+    if (!mounted) return;
+    setState(() {
+      _result = demoRecognitionResult;
+      _isIdentifying = false;
+    });
   }
 
   Future<void> _pickAndIdentify(ImageSource source) async {
@@ -85,14 +102,24 @@ class _RecognitionPageState extends ConsumerState<RecognitionPage> {
       _errorMessage = null;
     });
     try {
-      await ref
-          .read(gardenRepositoryProvider)
-          .addPlant(
-            speciesId: int.parse(species.id),
-            nickname: details.nickname,
-            location: details.location,
-          );
-      ref.invalidate(gardenPlantsProvider);
+      if (ref.read(demoModeProvider)) {
+        await ref
+            .read(demoGardenProvider.notifier)
+            .addPlant(
+              name: species.name,
+              nickname: details.nickname,
+              location: details.location,
+            );
+      } else {
+        await ref
+            .read(gardenRepositoryProvider)
+            .addPlant(
+              speciesId: int.parse(species.id),
+              nickname: details.nickname,
+              location: details.location,
+            );
+        ref.invalidate(gardenPlantsProvider);
+      }
       if (!mounted) return;
       setState(() => _isAddingToGarden = false);
       ScaffoldMessenger.of(
@@ -127,8 +154,13 @@ class _RecognitionPageState extends ConsumerState<RecognitionPage> {
               _UploadCard(
                 isIdentifying: _isIdentifying,
                 previewBytes: _previewBytes,
-                onPickGallery: () => _pickAndIdentify(ImageSource.gallery),
-                onPickCamera: () => _pickAndIdentify(ImageSource.camera),
+                onPickGallery: ref.watch(demoModeProvider)
+                    ? _runDemoIdentification
+                    : () => _pickAndIdentify(ImageSource.gallery),
+                onPickCamera: ref.watch(demoModeProvider)
+                    ? _runDemoIdentification
+                    : () => _pickAndIdentify(ImageSource.camera),
+                isDemoMode: ref.watch(demoModeProvider),
               ),
               if (_errorMessage != null) ...[
                 const SizedBox(height: 14),
@@ -263,12 +295,14 @@ class _UploadCard extends StatelessWidget {
     required this.previewBytes,
     required this.onPickGallery,
     required this.onPickCamera,
+    required this.isDemoMode,
   });
 
   final bool isIdentifying;
   final Uint8List? previewBytes;
   final VoidCallback onPickGallery;
   final VoidCallback onPickCamera;
+  final bool isDemoMode;
 
   @override
   Widget build(BuildContext context) {
@@ -295,7 +329,7 @@ class _UploadCard extends StatelessWidget {
               child: previewBytes == null
                   ? Container(
                       color: const Color(0xFFF1F8E9),
-                      child: const Column(
+                      child: Column(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
                           Icon(
@@ -304,7 +338,7 @@ class _UploadCard extends StatelessWidget {
                             size: 56,
                           ),
                           SizedBox(height: 12),
-                          Text('选择一张植物图片开始识别'),
+                          Text(isDemoMode ? '点击按钮体验本地示例识别' : '选择一张植物图片开始识别'),
                         ],
                       ),
                     )
@@ -330,12 +364,12 @@ class _UploadCard extends StatelessWidget {
                 FilledButton.icon(
                   onPressed: onPickGallery,
                   icon: const Icon(Icons.photo_library_outlined),
-                  label: const Text('从相册选择'),
+                  label: Text(isDemoMode ? '体验示例识别' : '从相册选择'),
                 ),
                 OutlinedButton.icon(
                   onPressed: onPickCamera,
                   icon: const Icon(Icons.photo_camera_outlined),
-                  label: const Text('拍照识别'),
+                  label: Text(isDemoMode ? '再次识别' : '拍照识别'),
                 ),
               ],
             ),
