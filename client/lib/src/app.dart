@@ -5,6 +5,7 @@ import 'package:go_router/go_router.dart';
 import 'core/demo/demo_mode_controller.dart';
 import 'features/auth/application/auth_controller.dart';
 import 'features/auth/presentation/login_page.dart';
+import 'features/garden/data/demo_garden_controller.dart';
 import 'features/garden/presentation/garden_page.dart';
 import 'features/recognition/presentation/recognition_page.dart';
 import 'features/reminders/presentation/reminders_page.dart';
@@ -77,6 +78,7 @@ class _SplashPageState extends ConsumerState<SplashPage> {
     Future.microtask(() async {
       await ref.read(demoModeProvider.notifier).restore();
       if (ref.read(demoModeProvider)) {
+        await ref.read(demoGardenProvider.notifier).restore();
         if (mounted) context.go('/garden');
         return;
       }
@@ -126,6 +128,7 @@ class _AuthenticatedShellState extends ConsumerState<AuthenticatedShell> {
   Future<void> _ensureAuthenticated() async {
     await ref.read(demoModeProvider.notifier).restore();
     if (ref.read(demoModeProvider)) {
+      await ref.read(demoGardenProvider.notifier).restore();
       if (mounted) setState(() => _checked = true);
       return;
     }
