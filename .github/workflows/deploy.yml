@@ -1,4 +1,4 @@
-name: Build and Deploy Flutter Web to Vercel
+﻿name: Build and Deploy Flutter Web to Vercel
 
 on:
   push:
@@ -50,10 +50,11 @@ jobs:
         working-directory: client/build/web
         env:
           VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
-        run: vercel link --yes --project plant-story --scope "$VERCEL_ORG_ID" --token "***"
+        run: vercel link --yes --project plant-story --scope "$VERCEL_ORG_ID" --token "$VERCEL_TOKEN"
 
       - name: Deploy Flutter Web build to Vercel
         working-directory: client/build/web
         env:
           VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
         run: vercel deploy --prod --yes --scope "$VERCEL_ORG_ID" --token "$VERCEL_TOKEN"
+
