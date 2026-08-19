@@ -47,12 +47,16 @@ jobs:
       - name: Install Vercel CLI
         run: npm install --global vercel@latest
 
-      - name: Link Vercel project
-        env:
-          VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
-        run: vercel link --yes --scope "$VERCEL_ORG_ID" --project "$VERCEL_PROJECT_ID" --token "$VERCEL_TOKEN"
+      - name: Configure Vercel project
+        shell: bash
+        run: |
+          mkdir -p client/build/web/.vercel
+          printf '{"orgId":"%s","projectId":"%s"}\n' \
+            "$VERCEL_ORG_ID" \
+            "$VERCEL_PROJECT_ID" > client/build/web/.vercel/project.json
 
       - name: Deploy Flutter Web build to Vercel
+        working-directory: client/build/web
         env:
           VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
-        run: vercel deploy client/build/web --prod --yes --scope "$VERCEL_ORG_ID" --token "$VERCEL_TOKEN"
+        run: vercel deploy --prod --yes --token "$VERCEL_TOKEN"
