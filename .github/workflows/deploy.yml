@@ -1,0 +1,58 @@
+name: Build and Deploy Flutter Web to Vercel
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+env:
+  FLUTTER_VERSION: '3.44.8'
+  VERCEL_ORG_ID: team_OlJTXPLJz2P5c3k8zBsFLZSX
+  VERCEL_PROJECT_ID: prj_ld7N1EiLJGkEy9PueMxGwCqh9nUv
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: ${{ env.FLUTTER_VERSION }}
+          channel: stable
+          cache: true
+
+      - name: Install dependencies
+        working-directory: client
+        run: flutter pub get
+
+      - name: Analyze Flutter project
+        working-directory: client
+        run: flutter analyze
+
+      - name: Run Flutter tests
+        working-directory: client
+        run: flutter test
+
+      - name: Build Flutter Web Demo
+        working-directory: client
+        run: flutter build web --release --base-href=/ --dart-define=API_BASE_URL=https://plantstory-production.up.railway.app/api/v1
+
+      - name: Install Vercel CLI
+        run: npm install --global vercel@latest
+
+      - name: Link Vercel project
+        env:
+          VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+        run: vercel link --yes --scope "$VERCEL_ORG_ID" --project "$VERCEL_PROJECT_ID" --token "$VERCEL_TOKEN"
+
+      - name: Deploy Flutter Web build to Vercel
+        env:
+          VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+        run: vercel deploy client/build/web --prod --yes --scope "$VERCEL_ORG_ID" --token "$VERCEL_TOKEN"
