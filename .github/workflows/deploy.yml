@@ -12,7 +12,6 @@ permissions:
 env:
   FLUTTER_VERSION: '3.44.8'
   VERCEL_ORG_ID: team_OlJTXPLJz2P5c3k8zBsFLZSX
-  VERCEL_PROJECT_ID: prj_ld7N1EiLJGkEy9PueMxGwCqh9nUv
 
 jobs:
   build-and-deploy:
@@ -47,16 +46,14 @@ jobs:
       - name: Install Vercel CLI
         run: npm install --global vercel@latest
 
-      - name: Configure Vercel project
-        shell: bash
-        run: |
-          mkdir -p client/build/web/.vercel
-          printf '{"orgId":"%s","projectId":"%s"}\n' \
-            "$VERCEL_ORG_ID" \
-            "$VERCEL_PROJECT_ID" > client/build/web/.vercel/project.json
+      - name: Link Vercel project
+        working-directory: client/build/web
+        env:
+          VERCEL_TOKEN: *** secrets.VERCEL_TOKEN }}
+        run: vercel link --yes --project plant-story --scope "$VERCEL_ORG_ID" --token "***"
 
       - name: Deploy Flutter Web build to Vercel
         working-directory: client/build/web
         env:
           VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
-        run: vercel deploy --prod --yes --token "$VERCEL_TOKEN"
+        run: vercel deploy --prod --yes --scope "$VERCEL_ORG_ID" --token "$VERCEL_TOKEN"
