@@ -1,4 +1,4 @@
-﻿name: Build and Deploy Flutter Web to Vercel
+﻿name: Validate Flutter Web
 
 on:
   push:
@@ -11,10 +11,9 @@ permissions:
 
 env:
   FLUTTER_VERSION: '3.44.8'
-  VERCEL_ORG_ID: team_OlJTXPLJz2P5c3k8zBsFLZSX
 
 jobs:
-  build-and-deploy:
+  validate:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -42,19 +41,4 @@ jobs:
       - name: Build Flutter Web Demo
         working-directory: client
         run: flutter build web --release --base-href=/ --dart-define=API_BASE_URL=https://plantstory-production.up.railway.app/api/v1
-
-      - name: Install Vercel CLI
-        run: npm install --global vercel@latest
-
-      - name: Link Vercel project
-        working-directory: client/build/web
-        env:
-          VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
-        run: vercel link --yes --project plant-story --scope "$VERCEL_ORG_ID"
-
-      - name: Deploy Flutter Web build to Vercel
-        working-directory: client/build/web
-        env:
-          VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
-        run: vercel deploy --prod --yes --scope "$VERCEL_ORG_ID"
 
