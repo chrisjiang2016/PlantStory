@@ -14,9 +14,14 @@ async function bootstrap() {
   // ── 全局前缀 ──
   app.setGlobalPrefix('api/v1');
 
-  // ── CORS（开发环境允许 Flutter Web 端口，并支持 HttpOnly refresh cookie）──
+  // ── CORS（允许本地开发及已发布的 Web Demo，并支持 HttpOnly refresh cookie）──
   app.enableCors({
-    origin: [/^http:\/\/localhost:\d+$/, /^http:\/\/127\.0\.0\.1:\d+$/],
+    origin: [
+      /^http:\/\/localhost:\d+$/,
+      /^http:\/\/127\.0\.0\.1:\d+$/,
+      'https://chrisjiang2016.github.io',
+      /^https:\/\/plant-story-[a-z0-9-]+-jly2008s-projects\.vercel\.app$/,
+    ],
     credentials: true,
   });
 
