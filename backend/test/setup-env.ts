@@ -1,10 +1,13 @@
 import 'dotenv/config';
 
-// Tests use an isolated SQLite file so they never mutate the developer database.
-// The DATABASE_URL should be passed via environment variable (cross-env in package.json).
-// Only set defaults if not already provided.
+// Test execution is routed through scripts/run-tests.js, which copies the
+// explicit TEST_DATABASE_URL into DATABASE_URL. There is intentionally no
+// SQLite or development-database fallback here: Prisma schema changes can use
+// `db push --accept-data-loss`, so an implicit URL would be unsafe.
 if (!process.env.DATABASE_URL) {
-  process.env.DATABASE_URL = 'file:./test-default.db';
+  throw new Error(
+    'DATABASE_URL is missing. Run tests through npm test with TEST_DATABASE_URL set.',
+  );
 }
 
 if (!process.env.JWT_SECRET) {
