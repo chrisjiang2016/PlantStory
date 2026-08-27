@@ -1,8 +1,8 @@
 {
   "version": 2,
   "cleanUrls": true,
-  "buildCommand": "cd client && flutter build web --release",
+  "buildCommand": "echo 'Build is done by GitHub Actions'",
   "outputDirectory": "client/build/web",
-  "installCommand": "echo 'Flutter should be pre-installed in the build environment'",
+  "installCommand": "echo 'No installation needed - using pre-built files'",
   "framework": null
 }
