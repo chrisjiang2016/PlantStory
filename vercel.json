@@ -1,4 +1,8 @@
 {
   "version": 2,
-  "cleanUrls": true
+  "cleanUrls": true,
+  "buildCommand": "cd client && flutter build web --release",
+  "outputDirectory": "client/build/web",
+  "installCommand": "echo 'Flutter should be pre-installed in the build environment'",
+  "framework": null
 }
