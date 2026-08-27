@@ -43,16 +43,11 @@ jobs:
         run: flutter build web --release --base-href=/ --dart-define=API_BASE_URL=https://plantstory-production.up.railway.app/api/v1
 
       - name: Deploy to Vercel
-        uses: amondnet/vercel-action@v25
+        working-directory: client/build/web
         env:
+          VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
           VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
           VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
-          CI: '1'
-        with:
-          vercel-token: ${{ secrets.VERCEL_TOKEN }}
-          vercel-org-id: ${{ secrets.VERCEL_ORG_ID }}
-          vercel-project-id: ${{ secrets.VERCEL_PROJECT_ID }}
-          working-directory: ./client/build/web
-          vercel-args: '--prod'
-          github-token: ${{ secrets.GITHUB_TOKEN }}
-          scope: ${{ secrets.VERCEL_ORG_ID }}
+        run: |
+          npm install --global vercel@latest
+          vercel deploy --prod --token=${{ secrets.VERCEL_TOKEN }} --yes
