@@ -52,5 +52,4 @@ jobs:
           npm install --global vercel@latest
           mkdir -p .vercel
           echo '{"orgId":"'"$VERCEL_ORG_ID"'","projectId":"'"$VERCEL_PROJECT_ID"'"}' > .vercel/project.json
-          cd build/web
-          vercel deploy --prod --token="${VERCEL_TOKEN}" --yes
+          vercel deploy build/web --prod --token="${VERCEL_TOKEN}" --yes
