@@ -52,3 +52,7 @@ postgres_data/
 # 构建产物
 dist/
 build/
+# 但保留 Flutter Web 构建产物供 Vercel 部署使用
+!client/build/
+client/build/*
+!client/build/web/
