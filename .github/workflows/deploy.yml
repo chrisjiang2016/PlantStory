@@ -42,19 +42,5 @@ jobs:
         working-directory: client
         run: flutter build web --release --base-href=/ --dart-define=API_BASE_URL=https://plantstory-production.up.railway.app/api/v1
 
-      - name: Deploy to Vercel
-        env:
-          VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
-          VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
-          VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
-        run: |
-          npm install --global vercel@latest
-          mkdir -p .vercel
-          cat > .vercel/project.json << EOF
-          {
-            "orgId": "${VERCEL_ORG_ID}",
-            "projectId": "${VERCEL_PROJECT_ID}"
-          }
-          EOF
-          cat .vercel/project.json
-          vercel --prod --token="${VERCEL_TOKEN}" --yes
+      # Vercel 部署由 Vercel GitHub App 自动完成
+      # 不需要在 GitHub Actions 中手动部署
