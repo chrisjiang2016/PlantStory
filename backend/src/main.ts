@@ -15,12 +15,14 @@ async function bootstrap() {
   app.setGlobalPrefix('api/v1');
 
   // ── CORS（允许本地开发及已发布的 Web Demo，并支持 HttpOnly refresh cookie）──
+  // Vercel 每次部署会生成不同的预览域名，这里放开 *.vercel.app 下 plant-story 前缀的所有域名，
+  // 避免换域名后 Web 端 refresh 请求被 CORS 拦截、启动页卡在“正在恢复登录状态”。
   app.enableCors({
     origin: [
       /^http:\/\/localhost:\d+$/,
       /^http:\/\/127\.0\.0\.1:\d+$/,
       'https://chrisjiang2016.github.io',
-      /^https:\/\/plant-story-[a-z0-9-]+-jly2008s-projects\.vercel\.app$/,
+      /^https:\/\/plant-story[a-z0-9-]*\.vercel\.app$/,
     ],
     credentials: true,
   });

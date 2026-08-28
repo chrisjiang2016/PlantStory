@@ -85,7 +85,17 @@ class _SplashPageState extends ConsumerState<SplashPage> {
         return;
       }
 
-      await ref.read(authControllerProvider.notifier).restoreSession();
+      // 恢复登录态最多等待 8 秒。
+      // Web 端遇到 CORS 预检被拦、后端冷启动或网络挂起时，Dio 的超时不一定生效，
+      // 这里用硬超时兜底，避免启动页永久停在“正在恢复登录状态”。
+      try {
+        await ref
+            .read(authControllerProvider.notifier)
+            .restoreSession()
+            .timeout(const Duration(seconds: 8));
+      } catch (_) {
+        // 超时或异常都按未登录处理，交给登录页兜底。
+      }
       if (!mounted) return;
       final user = ref.read(authControllerProvider).valueOrNull;
       context.go(user == null ? '/login' : '/garden');
@@ -138,7 +148,15 @@ class _AuthenticatedShellState extends ConsumerState<AuthenticatedShell> {
 
     final currentUser = ref.read(authControllerProvider).valueOrNull;
     if (currentUser == null) {
-      await ref.read(authControllerProvider.notifier).restoreSession();
+      // 与 SplashPage 相同的兜底：恢复登录态最多等待 8 秒，超时按未登录处理。
+      try {
+        await ref
+            .read(authControllerProvider.notifier)
+            .restoreSession()
+            .timeout(const Duration(seconds: 8));
+      } catch (_) {
+        // 忽略，交给下面的未登录分支跳转登录页。
+      }
     }
     if (!mounted) return;
     final user = ref.read(authControllerProvider).valueOrNull;
