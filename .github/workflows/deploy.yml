@@ -43,12 +43,12 @@ jobs:
         run: flutter build web --release --base-href=/ --dart-define=API_BASE_URL=https://plantstory-production.up.railway.app/api/v1
 
       - name: Deploy to Vercel
-        working-directory: client
         env:
           VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
           VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
           VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
         run: |
           npm install --global vercel@latest
-          cd build/web
+          mkdir -p .vercel
+          echo '{"orgId":"'"$VERCEL_ORG_ID"'","projectId":"'"$VERCEL_PROJECT_ID"'"}' > .vercel/project.json
           vercel --prod --token="${VERCEL_TOKEN}" --yes

@@ -3,6 +3,15 @@
   "cleanUrls": true,
   "buildCommand": "echo 'Build is done by GitHub Actions'",
   "outputDirectory": "client/build/web",
+  "routes": [
+    {
+      "handle": "filesystem"
+    },
+    {
+      "src": "/(.*)",
+      "dest": "/index.html"
+    }
+  ],
   "installCommand": "echo 'No installation needed - using pre-built files'",
   "framework": null
 }
