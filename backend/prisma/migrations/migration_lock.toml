@@ -1,0 +1,54 @@
+{
+  "version": "6.19.3",
+  "dialect": "postgresql",
+  "steps": [
+    {
+      "tag": "CreateTable",
+      "table": "User"
+    },
+    {
+      "tag": "CreateTable",
+      "table": "PlantSpecies"
+    },
+    {
+      "tag": "CreateTable",
+      "table": "MyPlant"
+    },
+    {
+      "tag": "CreateTable",
+      "table": "Recognition"
+    },
+    {
+      "tag": "CreateTable",
+      "table": "Favorite"
+    },
+    {
+      "tag": "CreateTable",
+      "table": "CareLog"
+    },
+    {
+      "tag": "CreateTable",
+      "table": "Diary"
+    },
+    {
+      "tag": "CreateTable",
+      "table": "Reminder"
+    },
+    {
+      "tag": "CreateTable",
+      "table": "Diagnosis"
+    },
+    {
+      "tag": "CreateTable",
+      "table": "Disease"
+    },
+    {
+      "tag": "CreateTable",
+      "table": "Achievement"
+    },
+    {
+      "tag": "CreateTable",
+      "table": "UserAchievement"
+    }
+  ]
+}
