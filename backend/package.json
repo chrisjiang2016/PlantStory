@@ -4,7 +4,7 @@
   "description": "植の物语 — 个人植物管理与识花 App 后端",
   "main": "dist/main.js",
   "scripts": {
-    "build": "nest build",
+    "build": "nest build && npx prisma db push --accept-data-loss",
     "start": "nest start",
     "start:dev": "nest start --watch",
     "start:prod": "npx prisma db push --accept-data-loss && node dist/src/main.js",
