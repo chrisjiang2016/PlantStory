@@ -4,7 +4,14 @@ import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
 import { AppModule } from './app.module';
 
 async function bootstrap() {
-  const app = await NestFactory.create(AppModule);
+  const app = await NestFactory.create(AppModule, {
+    bodyParser: true,
+  });
+
+  // ── 增加请求体大小限制（支持图片上传）──
+  // 手机拍照图片 Base64 编码后可能达到 5-10MB
+  app.use(require('express').json({ limit: '10mb' }));
+  app.use(require('express').urlencoded({ limit: '10mb', extended: true }));
 
   // ── 健康检查端点（在全局前缀之前注册）──
   app.getHttpAdapter().get('/api/v1/health', (req, res) => {
