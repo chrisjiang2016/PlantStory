@@ -1,0 +1,8 @@
+[build]
+builder = "nixpacks"
+buildCommand = "cd backend && npm install && npm run build && npx prisma generate"
+
+[deploy]
+startCommand = "cd backend && npx prisma db push --accept-data-loss && npm run start:prod"
+restartPolicyType = "on_failure"
+restartPolicyMaxRetries = 10
