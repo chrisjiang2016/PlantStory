@@ -288,16 +288,22 @@ export class RecognitionService {
   private async baiduIdentify(imageBase64: string): Promise<BaiduIdentifyResult> {
     const token = await this.getBaiduToken();
 
+    // 清理 Base64 字符串（移除 data URI 前缀和换行符）
+    const cleanBase64 = imageBase64
+      .replace(/^data:image\/[a-z]+;base64,/, '')
+      .replace(/\s/g, '');
+
     const url = `https://aip.baidubce.com/rest/2.0/image-classify/v1/plant?access_token=${token}`;
-    const body = JSON.stringify({
-      image: imageBase64,
-      baike_num: 5,
-    });
+    
+    // 百度 API 要求使用 application/x-www-form-urlencoded 格式
+    const params = new URLSearchParams();
+    params.append('image', cleanBase64);
+    params.append('baike_num', '5');
 
     const response = await this.httpClient.request(url, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body,
+      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+      body: params.toString(),
     });
 
     const text = await response.text();
