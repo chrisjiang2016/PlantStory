@@ -106,6 +106,19 @@ export class RecognitionService {
       } catch (err) {
         this.logger.warn(`Perenual search failed for: ${identifyResult.name}`, (err as Error).message);
       }
+
+      // 4. 如果 Perenual 也没有，至少用百度识别结果创建一个基础记录
+      if (!species) {
+        species = await this.prisma.plantSpecies.create({
+          data: {
+            name: identifyResult.name,
+            description: identifyResult.baikeInfo?.description?.substring(0, 1024),
+            imageUrl: identifyResult.baikeInfo?.imageUrl,
+            rawData: { source: 'baidu', baikeInfo: identifyResult.baikeInfo },
+          },
+        });
+        this.logger.log(`Created basic species from Baidu result: ${identifyResult.name}`);
+      }
     }
 
     // 4. 保存识别记录
