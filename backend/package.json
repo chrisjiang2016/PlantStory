@@ -7,7 +7,7 @@
     "build": "nest build",
     "start": "nest start",
     "start:dev": "nest start --watch",
-    "start:prod": "node dist/src/main.js",
+    "start:prod": "npx prisma db push --accept-data-loss && node dist/src/main.js",
     "test": "node scripts/run-tests.js",
     "test:sprint-a": "node scripts/run-tests.js test/sprint-a.e2e-spec.ts",
     "test:sprint-b": "node scripts/run-tests.js test/sprint-b-diagnosis.e2e-spec.ts",
